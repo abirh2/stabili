@@ -9,8 +9,7 @@ export type Route =
   | 'building-details'
   | 'management-profile'
   | 'saved'
-  | 'about'
-  | 'design-system';
+  | 'about';
 
 export type BuildingHealth = 'Good' | 'Fair' | 'Needs Attention' | 'Not enough data';
 

@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Bookmark, Building2 } from 'lucide-react';
-import { EmptyState, PageContainer, PublicRecordErrorState, SearchResultSkeleton, StatItem } from '../components/common';
+import { Bookmark } from 'lucide-react';
+import { EmptyState, PageContainer, PublicRecordErrorState, SearchResultSkeleton } from '../components/common';
 import { BuildingCard } from '../components/explore/BuildingCard';
 import { indexToBuilding } from '../data/adapters';
 import { loadIndexRecords } from '../data/client';
@@ -23,13 +23,26 @@ export const SavedPage: React.FC<SavedPageProps> = ({ savedBuildingIds, onToggle
   useEffect(load, [savedBuildingIds]);
   const buildings = useMemo(() => records.map(indexToBuilding), [records]);
   const missingCount = savedBuildingIds.length - records.length;
-  const knownUnits = records.map((record) => record.residentialUnits).filter((value): value is number => value !== null);
+  const groupedBuildings = useMemo(() => {
+    const groups = new Map<string, ReturnType<typeof indexToBuilding>[]>();
+    buildings.forEach((building) => groups.set(building.borough, [...(groups.get(building.borough) ?? []), building]));
+    return Array.from(groups.entries()).sort(([a], [b]) => a.localeCompare(b));
+  }, [buildings]);
 
   return <PageContainer maxWidth="1200">
-    <div className="mb-6"><h1 className="type-page-title">Saved buildings</h1><p className="type-metadata mt-1">Stored in this browser as Stabili IDs.</p></div>
-    {loading ? <div className="grid grid-cols-1 md:grid-cols-2 gap-4"><SearchResultSkeleton /><SearchResultSkeleton /></div> : error ? <PublicRecordErrorState description="Saved IDs could not be resolved against the generated index." onRetry={load} /> : buildings.length ? <>
-      {missingCount > 0 && <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-900">{missingCount} saved {missingCount === 1 ? 'ID is' : 'IDs are'} no longer present after the latest dataset rebuild.</div>}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start"><div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">{buildings.map((building) => <BuildingCard key={building.id} building={building} isSaved onSelect={onSelectBuilding} onToggleSave={onToggleSaveBuilding} />)}</div><aside className="st-card st-card--raised p-5 sticky top-20 space-y-3"><h2 className="type-building-title">Saved overview</h2><StatItem label="Current records" value={records.length} /><StatItem label="Known residential units" value={knownUnits.length ? knownUnits.reduce((sum, value) => sum + value, 0).toLocaleString() : 'Unavailable'} /><StatItem label="Boroughs" value={new Set(records.map((record) => record.borough)).size} /></aside></div>
-    </> : <EmptyState icon={<Bookmark className="w-6 h-6" />} title="No saved buildings yet" description={missingCount ? "Your previously saved IDs are not present in the current dataset." : "Save buildings while exploring Stabili so you can return to them here."} actionLabel="Explore buildings" onAction={() => onNavigate('explore')} />}
+    <header className="saved-header"><h1 className="type-page-title">Saved buildings</h1><p className="type-body text-secondary mt-2 max-w-xl">A lightweight list of building records you want to revisit. Saved IDs stay in this browser and are not synced to an account.</p></header>
+    {loading ? <div className="saved-loading"><SearchResultSkeleton /><SearchResultSkeleton /></div> : error ? <PublicRecordErrorState description="Saved IDs could not be resolved against the generated index." onRetry={load} /> : buildings.length ? <>
+      {missingCount > 0 && <p className="saved-notice" role="status">{missingCount} saved {missingCount === 1 ? 'ID is' : 'IDs are'} no longer present after the latest dataset rebuild.</p>}
+      <div className="saved-groups">{groupedBuildings.map(([borough, boroughBuildings]) => {
+        const headingId = `saved-${borough.replaceAll(' ', '-').toLowerCase()}`;
+        return <section key={borough} className="saved-group" aria-labelledby={headingId}>
+          <div className="saved-group__heading">
+            <h2 id={headingId} className="type-section-title">{borough}</h2>
+            <span className="type-metadata">{boroughBuildings.length} {boroughBuildings.length === 1 ? 'building' : 'buildings'}</span>
+          </div>
+          <div className="explore-result-list border-t">{boroughBuildings.map((building) => <BuildingCard key={building.id} building={building} isSaved onSelect={onSelectBuilding} onToggleSave={onToggleSaveBuilding} />)}</div>
+        </section>;
+      })}</div>
+    </> : <EmptyState icon={<Bookmark className="w-6 h-6" />} title="No saved buildings yet" description={missingCount ? "Your previously saved IDs are not present in the current dataset." : "Save a building record while exploring Stabili and it will appear here on this browser."} actionLabel="Explore buildings" onAction={() => onNavigate('explore')} />}
   </PageContainer>;
 };

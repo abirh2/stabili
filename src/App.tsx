@@ -13,7 +13,6 @@ import { BuildingDetailsPage } from './pages/BuildingDetailsPage';
 import { ManagementProfilePage } from './pages/ManagementProfilePage';
 import { SavedPage } from './pages/SavedPage';
 import { AboutPage } from './pages/AboutPage';
-import { DesignSystemShowcase } from './pages/DesignSystemShowcase';
 import { locationHash, navigateTo, parseHash, replaceHash, type AppLocation } from './routing';
 
 export default function App() {
@@ -43,6 +42,7 @@ export default function App() {
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'auto' });
+    setIsSearchOpen(false);
   }, [location]);
 
   useEffect(() => {
@@ -139,9 +139,6 @@ export default function App() {
           <AboutPage onNavigate={handleNavigate} />
         )}
 
-        {location.route === 'design-system' && (
-          <DesignSystemShowcase onNavigate={handleNavigate} />
-        )}
       </div>
 
       {/* Universal Footer */}

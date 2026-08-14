@@ -17,6 +17,7 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
   savedCount = 0,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const navItems: { label: string; route: Route; badge?: number }[] = [
     { label: 'Explore', route: 'explore' },
     { label: 'Saved', route: 'saved', badge: savedCount },
@@ -24,9 +25,23 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
   ];
 
   useEffect(() => setMobileMenuOpen(false), [currentRoute]);
+  useEffect(() => {
+    const updateScrolled = () => setScrolled(window.scrollY > 8);
+    updateScrolled();
+    window.addEventListener('scroll', updateScrolled, { passive: true });
+    return () => window.removeEventListener('scroll', updateScrolled);
+  }, []);
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setMobileMenuOpen(false);
+    };
+    window.addEventListener('keydown', closeOnEscape);
+    return () => window.removeEventListener('keydown', closeOnEscape);
+  }, [mobileMenuOpen]);
 
   return (
-    <header className="material-navigation fixed inset-x-0 top-0 z-50 h-16 px-4 sm:px-6 md:px-8">
+    <header className="navigation-shell fixed inset-x-0 top-0 z-50 h-16 px-4 sm:px-6 md:px-8" data-scrolled={scrolled || mobileMenuOpen ? 'true' : 'false'}>
       <div className="mx-auto flex h-full w-full max-w-[1200px] items-center justify-between">
         <div className="flex items-center gap-8 md:gap-10">
           <button
@@ -88,6 +103,7 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
             onClick={() => onNavigate('saved')}
             className="st-button st-button--ghost st-button--pill inline-flex !w-11 !p-0 md:hidden"
             aria-label={`Saved buildings${savedCount ? `, ${savedCount}` : ''}`}
+            aria-current={currentRoute === 'saved' ? 'page' : undefined}
           >
             <Bookmark className="h-5 w-5" />
           </button>
@@ -98,6 +114,7 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
             className="st-button st-button--ghost st-button--pill inline-flex !w-11 !p-0 md:hidden"
             aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
             aria-expanded={mobileMenuOpen}
+            aria-controls="mobile-navigation"
           >
             {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
@@ -105,10 +122,11 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
       </div>
 
       {mobileMenuOpen && (
-        <nav className="material-sheet absolute inset-x-0 top-16 px-4 py-3 md:hidden" aria-label="Mobile navigation">
+        <nav id="mobile-navigation" className="material-sheet absolute inset-x-0 top-16 px-4 py-3 md:hidden" aria-label="Mobile navigation">
           <div className="mx-auto max-w-[1200px] space-y-1">
             {navItems.map((item) => {
-              const isActive = currentRoute === item.route;
+              const isActive = currentRoute === item.route ||
+                (item.route === 'explore' && (currentRoute === 'building-details' || currentRoute === 'management-profile'));
               return (
                 <button
                   key={item.route}

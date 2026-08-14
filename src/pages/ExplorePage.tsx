@@ -171,7 +171,7 @@ export const ExplorePage: React.FC<ExplorePageProps> = ({
                         <h2 id="explore-filter-title" className="type-section-title">More filters</h2>
                         <p className="type-metadata mt-1">Refine the same public-record results.</p>
                       </div>
-                      <button ref={closeFiltersButtonRef} type="button" className="st-button st-button--ghost !min-h-10 !w-10 !p-0" onClick={() => setMoreFiltersOpen(false)} aria-label="Close filters">
+                      <button ref={closeFiltersButtonRef} type="button" className="st-button st-button--ghost !min-h-11 !w-11 !p-0" onClick={() => setMoreFiltersOpen(false)} aria-label="Close filters">
                         <X className="h-4 w-4" />
                       </button>
                     </header>
@@ -224,16 +224,16 @@ export const ExplorePage: React.FC<ExplorePageProps> = ({
               </div>
               <div className="flex items-center gap-2">
                 <label className="sr-only" htmlFor="explore-sort">Sort buildings</label>
-                <select id="explore-sort" value={sortBy} onChange={(event) => setSortBy(event.target.value as typeof sortBy)} className="st-input !min-h-10 w-auto px-3 py-2 text-xs font-medium">
+                <select id="explore-sort" value={sortBy} onChange={(event) => setSortBy(event.target.value as typeof sortBy)} className="st-input !min-h-11 w-auto px-3 py-2 text-xs font-medium">
                   <option value="default">Source order</option><option value="units-desc">Most units</option><option value="year-desc">Newest built</option><option value="violations-asc">Fewest open violations</option>
                 </select>
                 <div className="explore-view-toggle flex md:hidden" aria-label="Explore view">
-                  <button type="button" onClick={() => setMobileView('list')} className="st-chip !min-h-10 !w-10 !p-0" data-active={mobileView === 'list'} title="List view" aria-pressed={mobileView === 'list'}><List className="w-4 h-4" /></button>
-                  <button type="button" onClick={() => setMobileView('map')} className="st-chip !min-h-10 !w-10 !p-0" data-active={mobileView === 'map'} title="Map view" aria-pressed={mobileView === 'map'}><MapIcon className="w-4 h-4" /></button>
+                  <button type="button" onClick={() => setMobileView('list')} className="st-chip !min-h-11 !w-11 !p-0" data-active={mobileView === 'list'} title="List view" aria-label="List view" aria-pressed={mobileView === 'list'}><List className="w-4 h-4" /></button>
+                  <button type="button" onClick={() => setMobileView('map')} className="st-chip !min-h-11 !w-11 !p-0" data-active={mobileView === 'map'} title="Map view" aria-label="Map view" aria-pressed={mobileView === 'map'}><MapIcon className="w-4 h-4" /></button>
                 </div>
                 <div className="explore-view-toggle hidden md:flex" aria-label="Explore layout">
-                  <button type="button" onClick={() => setDesktopLayout('split')} className="st-chip !min-h-10 !w-10 !p-0" data-active={desktopLayout === 'split'} title="List and map" aria-pressed={desktopLayout === 'split'}><MapIcon className="w-4 h-4" /></button>
-                  <button type="button" onClick={() => setDesktopLayout('list')} className="st-chip !min-h-10 !w-10 !p-0" data-active={desktopLayout === 'list'} title="List only" aria-pressed={desktopLayout === 'list'}><List className="w-4 h-4" /></button>
+                  <button type="button" onClick={() => setDesktopLayout('split')} className="st-chip !min-h-11 !w-11 !p-0" data-active={desktopLayout === 'split'} title="List and map" aria-label="List and map" aria-pressed={desktopLayout === 'split'}><MapIcon className="w-4 h-4" /></button>
+                  <button type="button" onClick={() => setDesktopLayout('list')} className="st-chip !min-h-11 !w-11 !p-0" data-active={desktopLayout === 'list'} title="List only" aria-label="List only" aria-pressed={desktopLayout === 'list'}><List className="w-4 h-4" /></button>
                 </div>
               </div>
             </div>

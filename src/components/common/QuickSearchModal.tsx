@@ -112,7 +112,7 @@ export const QuickSearchModal: React.FC<QuickSearchModalProps> = ({
             aria-autocomplete="list"
           />
           {query && (
-            <button type="button" onClick={() => setQuery('')} className="st-button st-button--ghost st-button--pill !min-h-9 !w-9 !p-0" aria-label="Clear search">
+            <button type="button" onClick={() => setQuery('')} className="st-button st-button--ghost st-button--pill !min-h-11 !w-11 !p-0" aria-label="Clear search">
               <X className="h-4 w-4" />
             </button>
           )}

@@ -1,165 +1,88 @@
 import React from 'react';
-import { Route } from '../types';
+import { ArrowRight, ExternalLink } from 'lucide-react';
 import { Button } from '../components/common/Button';
-import { Database, HelpCircle, ExternalLink, ArrowRight } from 'lucide-react';
+import type { Route } from '../types';
 
 interface AboutPageProps {
   onNavigate: (route: Route) => void;
 }
 
-export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
-  const dataSources = [
-    {
-      name: 'NYC Housing Preservation & Development (HPD)',
-      desc: 'Building registration, code violations, open 311 complaints, and order to repair records.',
-      link: 'https://hpd.nyc.gov',
-    },
-    {
-      name: 'NYS Homes and Community Renewal (DHCR)',
-      desc: 'Official rent-stabilized building lists and statewide rent regulation oversight data.',
-      link: 'https://hcr.ny.gov',
-    },
-    {
-      name: 'NYC Department of Finance (DOF)',
-      desc: 'Real Property Tax Assessment, property deed history, and tax benefit programs (e.g. 421-a, J-51).',
-      link: 'https://www.nyc.gov/site/finance/index.page',
-    },
-    {
-      name: 'NYC OpenData',
-      desc: 'Citywide spatial data, Building Identification Numbers (BIN), and Borough-Block-Lot (BBL) tax records.',
-      link: 'https://opendata.cityofnewyork.us',
-    },
-  ];
+const dataSources = [
+  {
+    name: 'NYC Housing Preservation & Development (HPD)',
+    description: 'Building registration, housing maintenance violations, complaints, and related building records used in the generated dataset.',
+    link: 'https://hpd.nyc.gov',
+  },
+  {
+    name: 'NYS Homes and Community Renewal (DHCR)',
+    description: 'The official rent-stabilized building lists that form Stabili’s starting record set.',
+    link: 'https://hcr.ny.gov',
+  },
+  {
+    name: 'NYC Department of Finance (DOF)',
+    description: 'Property identifiers and assessment context used when records can be matched.',
+    link: 'https://www.nyc.gov/site/finance/index.page',
+  },
+  {
+    name: 'NYC OpenData',
+    description: 'The city data portal through which several property and housing datasets are published.',
+    link: 'https://opendata.cityofnewyork.us',
+  },
+];
 
-  const faqs = [
-    {
-      q: 'How does Stabili know if a building is rent-stabilized?',
-      a: 'We cross-reference public building records released by the New York State Division of Housing and Community Renewal (DHCR) and NYC HPD building registration filings. Buildings generally enter stabilization through pre-1974 construction (with 6+ units) or via municipal tax incentives like 421-a and J-51.',
-    },
-    {
-      q: 'Does finding a building here guarantee a vacant apartment?',
-      a: 'No. Stabili provides records for buildings listed in the stabilization source. When the generated public record includes owner or management information, renters can use it as a starting point for further research.',
-    },
-    {
-      q: 'How can a tenant check their individual apartment rent history?',
-      a: 'Tenants residing in New York can contact NYS DHCR directly to request an official "Rent History" record via mail or the DHCR online portal. This helps confirm whether past rent increases adhered to the NYC Rent Guidelines Board orders.',
-    },
-  ];
+export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => (
+  <div className="surface-base text-primary min-h-screen pb-28">
+    <main className="editorial-page">
+      <header className="editorial-intro">
+        <h1 className="type-page-title">Understand the building record.</h1>
+        <p>Stabili brings a reproducible snapshot of New York rent-stabilized building lists together with related public property, management, and building-condition records.</p>
+      </header>
 
-  return (
-    <div className="surface-base text-primary w-full min-h-screen pb-32">
-      <main className="max-w-[1200px] mx-auto px-4 sm:px-6 md:px-8 pt-24 md:pt-28 space-y-8">
-        {/* Hero Section */}
-        <section className="text-center max-w-2xl mx-auto pt-4 pb-2">
-          <h1 className="type-page-title">
-            Demystifying NYC Rent Stabilization.
-          </h1>
-          <p className="text-sm sm:text-base text-slate-500 mt-2.5 leading-relaxed">
-            Stabili was designed to give everyday renters the same clarity that brokers and property owners have had for decades.
-          </p>
+      <div className="editorial-body">
+        <section aria-labelledby="what-stabili-does">
+          <h2 id="what-stabili-does">What Stabili does</h2>
+          <p>Official records are often spread across PDFs and separate agency datasets. Stabili organizes those records around a building address so renters and researchers can find the source entry, review related public information, and identify an owner or management contact when the record includes one.</p>
+          <p>Each Stabili page is a research starting point. Addresses, property identifiers, and management names can be incomplete or difficult to match, so ambiguity and unavailable fields remain visible.</p>
         </section>
 
-        {/* Mission Card */}
-        <section className="st-card st-card--raised p-6 sm:p-8 md:p-10">
-          <div className="max-w-3xl">
-            <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-slate-900 mb-3">
-              Our mission: building trust through verifiable public records.
-            </h2>
-            <div className="space-y-3 text-sm text-slate-600 leading-relaxed">
-              <p>
-                Roughly one million apartments in New York City are covered by rent stabilization laws. Yet finding which buildings qualify and identifying who to contact has traditionally been locked behind archaic PDF listings and disconnected city databases.
-              </p>
-              <p>
-                Stabili indexes official city and state databases to bring together building histories, landlord portfolios, and direct contact avenues into a calm, transparent consumer experience.
-              </p>
-            </div>
-          </div>
+        <section aria-labelledby="what-the-data-means">
+          <h2 id="what-the-data-means">What the data means</h2>
+          <p>A building appearing in Stabili means it appears in the source rent-stabilized building file represented by the current generated dataset. Related city records are attached when the matching process finds a sufficiently clear connection.</p>
+          <p>The building-health summary is a Stabili interpretation of selected public condition records. It is not an agency grade, a legal finding, or a determination that a building or apartment is safe or unsafe.</p>
         </section>
 
-        {/* Public Data Sources Section */}
-        <section className="space-y-4">
-          <div className="flex items-center gap-2.5">
-            <div className="h-6 w-6 text-accent flex items-center justify-center shrink-0">
-              <Database className="w-4 h-4" />
-            </div>
-            <div>
-              <h2 className="text-lg font-semibold tracking-tight text-slate-900">
-                Official Public Data Sources
-              </h2>
-              <p className="text-xs text-slate-500">Authoritative city and state records indexed by Stabili</p>
-            </div>
-          </div>
+        <section aria-labelledby="limits">
+          <h2 id="limits">What Stabili does not guarantee</h2>
+          <ul>
+            <li>That a particular apartment is rent-stabilized.</li>
+            <li>That an apartment is available to rent.</li>
+            <li>That management or contact information is current or complete.</li>
+            <li>That every agency record matched to a building is free from source or matching errors.</li>
+          </ul>
+          <p>For an apartment’s official rent history or a legal determination, contact NYS Homes and Community Renewal or seek qualified tenant guidance.</p>
+        </section>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <section aria-labelledby="source-transparency">
+          <h2 id="source-transparency">Source transparency</h2>
+          <p>Stabili reads committed, generated data rather than querying city services live in your browser. Source names, dates, matching notes, and unavailable states are kept close to the records they qualify.</p>
+          <div className="editorial-sources">
             {dataSources.map((source) => (
-              <a
-                key={source.name}
-                href={source.link}
-                target="_blank"
-                rel="noreferrer"
-                className="st-card st-card--interactive p-5 group block"
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <h3 className="text-sm font-semibold text-slate-900 group-hover:text-teal-800 transition-colors">
-                    {source.name}
-                  </h3>
-                  <ExternalLink className="w-3.5 h-3.5 text-slate-400 group-hover:text-teal-600 shrink-0 mt-0.5" />
-                </div>
-                <p className="text-xs text-slate-500 mt-1.5 leading-relaxed">
-                  {source.desc}
-                </p>
+              <a key={source.name} href={source.link} target="_blank" rel="noreferrer">
+                <span><strong>{source.name}</strong><small>{source.description}</small></span>
+                <ExternalLink aria-hidden="true" />
               </a>
             ))}
           </div>
         </section>
 
-        {/* FAQs */}
-        <section className="st-card st-card--raised p-6 sm:p-8 md:p-10 space-y-6">
-          <div className="flex items-center gap-2.5">
-            <div className="h-6 w-6 text-accent flex items-center justify-center shrink-0">
-              <HelpCircle className="w-4 h-4" />
-            </div>
-            <div>
-              <h2 className="text-lg font-semibold tracking-tight text-slate-900">
-                Frequently Asked Questions
-              </h2>
-              <p className="text-xs text-slate-500">Common questions about NYC rent stabilization and building data</p>
-            </div>
+        <section className="editorial-action" aria-labelledby="research-a-building">
+          <div>
+            <h2 id="research-a-building">Research a building</h2>
+            <p>Search the current generated record set by address, borough, ZIP code, or management name.</p>
           </div>
-
-          <div className="divide-y divide-slate-100 space-y-4 pt-1">
-            {faqs.map((faq, i) => (
-              <div key={i} className={i > 0 ? 'pt-4' : ''}>
-                <h3 className="text-sm font-semibold text-slate-900 mb-1.5">
-                  {faq.q}
-                </h3>
-                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                  {faq.a}
-                </p>
-              </div>
-            ))}
-          </div>
+          <Button variant="primary" rightIcon={<ArrowRight className="h-4 w-4" />} onClick={() => onNavigate('explore')}>Explore building records</Button>
         </section>
-
-        {/* Bottom CTA */}
-        <section className="surface-muted radius-card text-center p-6 sm:p-8">
-          <h3 className="text-base sm:text-lg font-semibold text-slate-900">
-            Ready to find your next home?
-          </h3>
-          <p className="text-xs sm:text-sm text-slate-500 mt-1 mb-5 max-w-md mx-auto">
-            Search generated rent-stabilized building records across all 5 NYC boroughs.
-          </p>
-          <Button
-            variant="primary"
-            size="md"
-            rightIcon={<ArrowRight className="w-3.5 h-3.5" />}
-            onClick={() => onNavigate('explore')}
-            className="px-6"
-          >
-            Start Exploring Buildings
-          </Button>
-        </section>
-      </main>
-    </div>
-  );
-};
+      </div>
+    </main>
+  </div>
+);

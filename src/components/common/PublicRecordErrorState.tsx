@@ -16,7 +16,7 @@ export const PublicRecordErrorState: React.FC<PublicRecordErrorStateProps> = ({
   className = '',
 }) => {
   return (
-    <div className={`surface-muted radius-card p-6 sm:p-8 text-center max-w-md mx-auto my-6 ${className}`} role="alert">
+    <div className={`separator max-w-md mx-auto my-6 border-y px-2 py-10 text-center ${className}`} role="alert">
       <div className="text-tertiary flex h-10 w-10 items-center justify-center mx-auto mb-3.5">
         <Database className="w-5 h-5" />
       </div>

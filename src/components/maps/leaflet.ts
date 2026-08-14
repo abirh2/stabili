@@ -21,8 +21,8 @@ export function buildingMarkerIcon(isActive = false) {
   return divIcon({
     className: 'stabili-leaflet-marker-shell',
     html: `<span class="stabili-leaflet-marker${isActive ? ' is-active' : ''}" aria-hidden="true"><span></span></span>`,
-    iconSize: [30, 38],
-    iconAnchor: [15, 36],
-    popupAnchor: [0, -32],
+    iconSize: [44, 44],
+    iconAnchor: [22, 40],
+    popupAnchor: [0, -36],
   });
 }

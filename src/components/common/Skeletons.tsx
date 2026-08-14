@@ -5,49 +5,22 @@ const shimmer = 'st-skeleton';
 
 export const SearchResultSkeleton: React.FC = () => {
   return (
-    <div className="st-card st-card--raised p-4 sm:p-5 space-y-4">
-      {/* Header */}
+    <div className="separator border-b px-1 py-6" aria-hidden="true">
       <div className="flex items-start justify-between gap-3">
-        <div className="space-y-2 flex-1">
-          <div className={`h-3 w-32 ${shimmer}`} />
-          <div className={`h-5 w-3/4 ${shimmer}`} />
-          <div className={`h-3 w-1/2 ${shimmer}`} />
+        <div className="flex-1 space-y-2">
+          <div className={`h-5 w-2/3 max-w-64 ${shimmer}`} />
+          <div className={`h-3 w-28 ${shimmer}`} />
         </div>
-        <div className={`w-10 h-10 rounded-xl ${shimmer}`} />
+        <div className={`h-10 w-10 ${shimmer}`} />
       </div>
-
-      {/* Badges */}
-      <div className="flex items-center gap-2">
-        <div className={`h-6 w-28 rounded-full ${shimmer}`} />
-        <div className={`h-6 w-20 rounded-full ${shimmer}`} />
-      </div>
-
-      {/* Specs Grid */}
-      <div className="surface-muted radius-control grid grid-cols-3 gap-2 p-3">
+      <div className="separator mt-5 grid grid-cols-3 gap-3 border-y py-3">
         <div className={`h-8 ${shimmer}`} />
         <div className={`h-8 ${shimmer}`} />
         <div className={`h-8 ${shimmer}`} />
       </div>
-
-      {/* Health & Violations Row */}
-      <div className={`h-10 w-full rounded-xl ${shimmer}`} />
-
-      {/* Footer */}
-      <div className="separator pt-3 border-t flex items-center justify-between">
-        <div className={`h-4 w-36 ${shimmer}`} />
-        <div className={`h-8 w-16 rounded-xl ${shimmer}`} />
-      </div>
-    </div>
-  );
-};
-
-export const BuildingHealthSkeleton: React.FC = () => {
-  return (
-    <div className="surface-muted radius-control p-3.5 flex items-center gap-3">
-      <div className={`w-9 h-9 rounded-xl ${shimmer} shrink-0`} />
-      <div className="space-y-1.5 flex-1">
+      <div className="mt-4 flex items-center justify-between gap-4">
         <div className={`h-4 w-28 ${shimmer}`} />
-        <div className={`h-3 w-48 ${shimmer}`} />
+        <div className={`h-4 w-44 max-w-[48%] ${shimmer}`} />
       </div>
     </div>
   );
@@ -55,37 +28,26 @@ export const BuildingHealthSkeleton: React.FC = () => {
 
 export const BuildingDetailsSkeleton: React.FC = () => {
   return (
-    <div className="space-y-6">
-      {/* Header Skeleton */}
-      <div className="space-y-3">
-        <div className={`h-6 w-48 rounded-full ${shimmer}`} />
-        <div className={`h-9 w-2/3 ${shimmer}`} />
-        <div className={`h-4 w-80 ${shimmer}`} />
-      </div>
-
-      {/* Main Specs Bento Skeleton */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="st-card st-card--raised md:col-span-2 p-6 space-y-4">
-          <div className={`h-4 w-40 ${shimmer}`} />
-          <div className="grid grid-cols-4 gap-3">
-            <div className={`h-16 ${shimmer}`} />
-            <div className={`h-16 ${shimmer}`} />
-            <div className={`h-16 ${shimmer}`} />
-            <div className={`h-16 ${shimmer}`} />
-          </div>
+    <div className="building-dossier" aria-hidden="true">
+      <div className="separator space-y-3 border-b py-8">
+        <div className={`h-4 w-64 max-w-full ${shimmer}`} />
+        <div className={`h-9 w-2/3 max-w-lg ${shimmer}`} />
+        <div className={`h-4 w-40 ${shimmer}`} />
+        <div className="flex gap-2 pt-3">
+          <div className={`h-11 w-40 ${shimmer}`} />
+          <div className={`h-11 w-24 ${shimmer}`} />
         </div>
-        <div className={`h-48 rounded-2xl ${shimmer}`} />
       </div>
-
-      {/* Overview Card Skeleton */}
-      <div className="st-card st-card--raised p-6 space-y-4">
-        <div className={`h-6 w-40 ${shimmer}`} />
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <div className={`h-14 ${shimmer}`} />
-          <div className={`h-14 ${shimmer}`} />
-          <div className={`h-14 ${shimmer}`} />
-          <div className={`h-14 ${shimmer}`} />
-        </div>
+      <div className="separator grid grid-cols-2 border-b py-5 sm:grid-cols-4">
+        <div className={`h-12 w-20 ${shimmer}`} />
+        <div className={`h-12 w-20 ${shimmer}`} />
+        <div className={`h-12 w-20 ${shimmer}`} />
+        <div className={`h-12 w-24 ${shimmer}`} />
+      </div>
+      <div className="separator space-y-4 border-b py-10">
+        <div className={`h-6 w-44 ${shimmer}`} />
+        <div className={`h-4 w-full max-w-xl ${shimmer}`} />
+        <div className={`h-4 w-4/5 max-w-lg ${shimmer}`} />
       </div>
     </div>
   );
@@ -93,54 +55,28 @@ export const BuildingDetailsSkeleton: React.FC = () => {
 
 export const ManagementProfileSkeleton: React.FC = () => {
   return (
-    <div className="space-y-6">
-      {/* Top Header Card */}
-      <div className="st-card st-card--raised p-6 space-y-4">
-        <div className={`h-6 w-56 rounded-full ${shimmer}`} />
-        <div className={`h-8 w-1/2 ${shimmer}`} />
-        <div className={`h-4 w-64 ${shimmer}`} />
-        <div className="flex gap-2">
-          <div className={`h-8 w-28 rounded-lg ${shimmer}`} />
-          <div className={`h-8 w-36 rounded-lg ${shimmer}`} />
+    <div className="management-profile" aria-hidden="true">
+      <div className="management-profile__hero">
+        <div className="space-y-3">
+          <div className={`h-4 w-52 ${shimmer}`} />
+          <div className={`h-9 w-3/4 max-w-lg ${shimmer}`} />
+          <div className={`h-4 w-full max-w-2xl ${shimmer}`} />
+          <div className={`h-4 w-4/5 max-w-xl ${shimmer}`} />
+          <div className="separator flex gap-6 border-y py-4">
+            <div className={`h-10 w-32 ${shimmer}`} />
+            <div className={`h-10 w-32 ${shimmer}`} />
+          </div>
+        </div>
+        <div className="space-y-3">
+          <div className={`h-6 w-44 ${shimmer}`} />
+          <div className={`h-14 w-full ${shimmer}`} />
         </div>
       </div>
-
-      {/* Borough Breakdown Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className={`h-24 ${shimmer}`} />
-        <div className={`h-24 ${shimmer}`} />
-        <div className={`h-24 ${shimmer}`} />
-        <div className={`h-24 ${shimmer}`} />
-      </div>
-
-      {/* Managed Buildings Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="management-profile__buildings space-y-2">
+        <div className={`mb-4 h-6 w-56 ${shimmer}`} />
         <SearchResultSkeleton />
         <SearchResultSkeleton />
       </div>
-    </div>
-  );
-};
-
-export const ExploreMapSkeleton: React.FC = () => {
-  return (
-    <div className="surface-muted radius-card w-full h-full min-h-[460px] p-4 relative overflow-hidden flex flex-col justify-between">
-      <div className="flex justify-between items-center z-10">
-        <div className={`h-8 w-36 rounded-full ${shimmer}`} />
-        <div className={`h-8 w-24 rounded-xl ${shimmer}`} />
-      </div>
-
-      {/* Pin placeholders */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-        <div className="relative w-full h-full">
-          <div className={`absolute top-1/4 left-1/3 h-7 w-20 rounded-full ${shimmer}`} />
-          <div className={`absolute top-1/2 left-1/2 h-7 w-24 rounded-full ${shimmer}`} />
-          <div className={`absolute top-2/3 left-1/4 h-7 w-22 rounded-full ${shimmer}`} />
-          <div className={`absolute top-1/3 left-2/3 h-7 w-18 rounded-full ${shimmer}`} />
-        </div>
-      </div>
-
-      <div className={`h-12 w-full max-w-sm rounded-2xl ${shimmer} z-10`} />
     </div>
   );
 };

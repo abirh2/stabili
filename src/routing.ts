@@ -21,7 +21,6 @@ export function parseHash(hash: string): AppLocation {
   if (!path || path === 'explore') return EXPLORE_LOCATION;
   if (path === 'saved') return { route: 'saved' };
   if (path === 'about') return { route: 'about' };
-  if (path === 'design-system') return { route: 'design-system' };
 
   if (path.startsWith('building/')) {
     const buildingId = decodeSegment(path.slice('building/'.length));
@@ -46,8 +45,6 @@ export function locationHash(location: AppLocation): string {
       return '#/saved';
     case 'about':
       return '#/about';
-    case 'design-system':
-      return '#/design-system';
     default:
       return '#/explore';
   }

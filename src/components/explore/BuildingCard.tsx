@@ -94,7 +94,7 @@ export const BuildingCard: React.FC<BuildingCardProps> = ({
           id={`save-btn-${building.id}`}
           type="button"
           onClick={() => onToggleSave(building.id)}
-          className={`st-button st-button--pill !min-h-10 !w-10 !p-0 ${isSaved ? 'st-button--subtle-teal' : 'st-button--ghost'}`}
+          className={`st-button st-button--pill !min-h-11 !w-11 !p-0 ${isSaved ? 'st-button--subtle-teal' : 'st-button--ghost'}`}
           aria-pressed={isSaved}
           aria-label={isSaved ? 'Remove building from saved' : 'Save building'}
         >
