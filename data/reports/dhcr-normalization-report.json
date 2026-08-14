@@ -1,0 +1,109 @@
+{
+  "source": "NYS Homes and Community Renewal 2024 Building Registration File",
+  "recordSemantics": "One normalized record per raw DHCR row; records sharing parcels remain independent.",
+  "totals": {
+    "totalNormalizedRecords": 50879,
+    "recordsWithPrimaryAddress": 50879,
+    "recordsWithAlternateAddress": 1654,
+    "addressRanges": 5522,
+    "recordsWithAddressRanges": 5522,
+    "sharedParcelKeys": 1290,
+    "recordsSharingParcelKey": 4891,
+    "missingBlock": 0,
+    "missingLot": 0,
+    "missingBlockOrLot": 0,
+    "normalizationFailures": 0,
+    "duplicateStabiliIds": 0,
+    "duplicateSourceRecordIds": 0
+  },
+  "sharedParcelKeyExamples": [
+    {
+      "parcelKey": "1-00164-0003",
+      "recordCount": 2
+    },
+    {
+      "parcelKey": "1-00164-0019",
+      "recordCount": 4
+    },
+    {
+      "parcelKey": "1-00199-0007",
+      "recordCount": 2
+    },
+    {
+      "parcelKey": "1-00199-0019",
+      "recordCount": 2
+    },
+    {
+      "parcelKey": "1-00199-0031",
+      "recordCount": 2
+    },
+    {
+      "parcelKey": "1-00203-0010",
+      "recordCount": 2
+    },
+    {
+      "parcelKey": "1-00203-0015",
+      "recordCount": 2
+    },
+    {
+      "parcelKey": "1-00205-0010",
+      "recordCount": 2
+    },
+    {
+      "parcelKey": "1-00205-0022",
+      "recordCount": 2
+    },
+    {
+      "parcelKey": "1-00206-0004",
+      "recordCount": 2
+    },
+    {
+      "parcelKey": "1-00237-0032",
+      "recordCount": 2
+    },
+    {
+      "parcelKey": "1-00237-0033",
+      "recordCount": 2
+    },
+    {
+      "parcelKey": "1-00238-0027",
+      "recordCount": 2
+    },
+    {
+      "parcelKey": "1-00238-0035",
+      "recordCount": 2
+    },
+    {
+      "parcelKey": "1-00238-0036",
+      "recordCount": 2
+    },
+    {
+      "parcelKey": "1-00238-0037",
+      "recordCount": 2
+    },
+    {
+      "parcelKey": "1-00238-0038",
+      "recordCount": 2
+    },
+    {
+      "parcelKey": "1-00247-0001",
+      "recordCount": 2
+    },
+    {
+      "parcelKey": "1-00276-0033",
+      "recordCount": 2
+    },
+    {
+      "parcelKey": "1-00279-0029",
+      "recordCount": 4
+    }
+  ],
+  "normalizationFailures": [],
+  "assumptions": [
+    "Only the explicit word TO denotes an address range; hyphens remain part of NYC house numbers.",
+    "The source PDF borough determines the official borough digit used in BBL and parcelKey.",
+    "BBL is derived only from numeric block/lot values that fit the official five/four digit components.",
+    "Unknown abbreviations are title-cased rather than guessed; raw values remain in sourceMetadata.",
+    "No NYC API enrichment, record merging, BIN, or HPD Building ID is performed."
+  ]
+}
