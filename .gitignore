@@ -18,6 +18,10 @@ AGENTS.md
 graphify-out/*
 node_modules/*
 
+# Python data-pipeline bytecode.
+__pycache__/
+*.py[cod]
+
 # Local secrets. Commit only the documented template.
 .env
 .env.*

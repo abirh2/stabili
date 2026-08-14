@@ -1,0 +1,95 @@
+{
+  "source": "NYS Homes and Community Renewal 2024 Building Registration File",
+  "recordSemantics": "One output record per source PDF table row; no merging or deduplication applied.",
+  "sourceColumns": [
+    "ZIP",
+    "BLDGNO1",
+    "STREET1",
+    "STSUFX1",
+    "BLDGNO2",
+    "STREET2",
+    "STSUFX2",
+    "CITY",
+    "COUNTY",
+    "STATUS1",
+    "STATUS2",
+    "STATUS3",
+    "BLOCK",
+    "LOT"
+  ],
+  "boroughs": {
+    "Bronx": {
+      "pdfFilename": "2024-DHCR-Bldg-File-Bronx.pdf",
+      "pagesProcessed": 143,
+      "recordsExtracted": 7955,
+      "rowsRejected": 0,
+      "duplicateRawSourceIds": 0,
+      "duplicateRawSourceIdValues": [],
+      "recordsMissingBlock": 0,
+      "recordsMissingLot": 0,
+      "recordsWithAlternateAddresses": 317,
+      "recordsWithAddressRanges": 1021
+    },
+    "Brooklyn": {
+      "pdfFilename": "2024-DHCR-Bldg-File-Brooklyn.pdf",
+      "pagesProcessed": 310,
+      "recordsExtracted": 17614,
+      "rowsRejected": 0,
+      "duplicateRawSourceIds": 0,
+      "duplicateRawSourceIdValues": [],
+      "recordsMissingBlock": 0,
+      "recordsMissingLot": 0,
+      "recordsWithAlternateAddresses": 508,
+      "recordsWithAddressRanges": 1772
+    },
+    "Manhattan": {
+      "pdfFilename": "2024-DHCR-Bldg-File-Manhattan.pdf",
+      "pagesProcessed": 259,
+      "recordsExtracted": 14497,
+      "rowsRejected": 0,
+      "duplicateRawSourceIds": 0,
+      "duplicateRawSourceIdValues": [],
+      "recordsMissingBlock": 0,
+      "recordsMissingLot": 0,
+      "recordsWithAlternateAddresses": 567,
+      "recordsWithAddressRanges": 1872
+    },
+    "Queens": {
+      "pdfFilename": "2024-DHCR-Bldg-File-Queens.pdf",
+      "pagesProcessed": 186,
+      "recordsExtracted": 10374,
+      "rowsRejected": 0,
+      "duplicateRawSourceIds": 0,
+      "duplicateRawSourceIdValues": [],
+      "recordsMissingBlock": 0,
+      "recordsMissingLot": 0,
+      "recordsWithAlternateAddresses": 248,
+      "recordsWithAddressRanges": 759
+    },
+    "Staten Island": {
+      "pdfFilename": "2024-DHCR-Bldg-File-Staten-Island.pdf",
+      "pagesProcessed": 9,
+      "recordsExtracted": 439,
+      "rowsRejected": 0,
+      "duplicateRawSourceIds": 0,
+      "duplicateRawSourceIdValues": [],
+      "recordsMissingBlock": 0,
+      "recordsMissingLot": 0,
+      "recordsWithAlternateAddresses": 14,
+      "recordsWithAddressRanges": 98
+    }
+  },
+  "totals": {
+    "pdfFilesProcessed": 5,
+    "pagesProcessed": 907,
+    "recordsExtracted": 50879,
+    "rowsRejected": 0,
+    "duplicateRawSourceIds": 0,
+    "recordsMissingBlock": 0,
+    "recordsMissingLot": 0,
+    "recordsWithAlternateAddresses": 1654,
+    "recordsWithAddressRanges": 5522
+  },
+  "duplicateRawSourceIdValues": [],
+  "rejectedNeedsReview": []
+}
