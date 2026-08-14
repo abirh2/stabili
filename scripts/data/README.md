@@ -67,3 +67,37 @@ python3 scripts/data/diagnose_nyc_open_data.py --refresh-cache
 
 The diagnostic prints only success, dataset ID, and record count; it never
 prints the application token.
+
+## Property matching
+
+The property-matching stage reads `dhcr_normalized.json` and resolves each row
+against two official NYC Open Data datasets through the reusable cached
+Socrata client:
+
+- `kj4p-ruqc`, Buildings Subject to HPD Jurisdiction, for HPD Building IDs,
+  BINs, building addresses, and parcel components
+- `64uk-42ks`, Primary Land Use Tax Lot Output (PLUTO), for official BBLs,
+  parcel addresses, and coordinates
+
+The stage downloads only the required field projections in large paginated
+batches, then indexes them locally. Matching starts with borough/block/lot and
+uses primary or alternate addresses only to disambiguate multiple buildings on
+one parcel or as a fallback when the source BBL is not present. Ambiguous
+building assignments retain certain parcel data but never receive an invented
+BIN or HPD Building ID. Source rows are never merged.
+
+```bash
+python3 scripts/data/match_properties.py
+```
+
+Outputs:
+
+- `data/intermediate/property_matches.json` (reproducible working data,
+  gitignored)
+- `data/reports/property-match-report.json` (machine-readable validation)
+- `data/reports/property-match-manual-review.csv` (ambiguous and unmatched
+  records)
+
+Use `--refresh-cache` only when intentionally replacing the local NYC API
+snapshot. This stage does not fetch violations, complaints, registrations,
+contacts, or any other HPD enrichment.
