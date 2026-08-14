@@ -188,5 +188,31 @@ export interface StabiliDatasetMetadata {
   stabilizationSourceYear: number | null;
   generatedAt: ISODateString | null;
   hpdRetrievedAt: ISODateString | null;
+  healthAlgorithmVersion: string;
+  recordCounts: {
+    total: number;
+    byBorough: Record<Borough, number>;
+  };
+  propertyMatchCounts: Record<PropertyMatchStatus, number>;
+  buildingFilesByBorough: Record<Borough, string[]>;
   sources: DatasetSourceMetadata[];
+}
+
+/** Compact fields used for discovery; detailed event arrays live in borough shards. */
+export interface StabiliIndexRecord {
+  id: string;
+  address: string | null;
+  borough: Borough;
+  zipCode: string | null;
+  managementName: string | null;
+  ownerName: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  healthState: StabiliHealthState;
+  openViolationCount: number | null;
+  complaintsLast36Months: number | null;
+  residentialUnits: number | null;
+  yearBuilt: number | null;
+  propertyMatchStatus: PropertyMatchStatus;
+  detailFile: string;
 }

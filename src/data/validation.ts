@@ -4,6 +4,7 @@ import {
   STABILI_HEALTH_STATES,
   STABILI_SCHEMA_VERSION,
   type StabiliDatasetMetadata,
+  type StabiliIndexRecord,
   type StabiliRecord,
 } from './schema';
 
@@ -245,6 +246,17 @@ const datasetMetadata = object({
   stabilizationSourceYear: nullable(integer(0)),
   generatedAt: nullable(isoDate),
   hpdRetrievedAt: nullable(isoDate),
+  healthAlgorithmVersion: nonEmptyString,
+  recordCounts: object({
+    total: integer(0),
+    byBorough: object(Object.fromEntries(BOROUGHS.map((borough) => [borough, integer(0)]))),
+  }),
+  propertyMatchCounts: object(
+    Object.fromEntries(PROPERTY_MATCH_STATUSES.map((status) => [status, integer(0)])),
+  ),
+  buildingFilesByBorough: object(
+    Object.fromEntries(BOROUGHS.map((borough) => [borough, arrayOf(nonEmptyString)])),
+  ),
   sources: arrayOf(object({
     id: nonEmptyString,
     name: nonEmptyString,
@@ -253,6 +265,24 @@ const datasetMetadata = object({
     sourceDataAsOf: nullable(isoDate),
     retrievedAt: nullable(isoDate),
   })),
+});
+
+const indexRecord = object({
+  id: nonEmptyString,
+  address: nullable(string),
+  borough: oneOf(BOROUGHS),
+  zipCode: nullable(string),
+  managementName: nullable(string),
+  ownerName: nullable(string),
+  latitude: nullable(finiteNumber),
+  longitude: nullable(finiteNumber),
+  healthState: oneOf(STABILI_HEALTH_STATES),
+  openViolationCount: nullable(integer(0)),
+  complaintsLast36Months: nullable(integer(0)),
+  residentialUnits: nullable(integer(0)),
+  yearBuilt: nullable(integer(0)),
+  propertyMatchStatus: oneOf(PROPERTY_MATCH_STATUSES),
+  detailFile: nonEmptyString,
 });
 
 export function validateStabiliRecord(value: unknown, path = '$'): ValidationIssue[] {
@@ -267,6 +297,12 @@ export function validateDatasetMetadata(value: unknown, path = '$'): ValidationI
   return issues;
 }
 
+export function validateStabiliIndexRecord(value: unknown, path = '$'): ValidationIssue[] {
+  const issues: ValidationIssue[] = [];
+  indexRecord(value, path, issues);
+  return issues;
+}
+
 export function assertStabiliRecord(value: unknown): asserts value is StabiliRecord {
   const issues = validateStabiliRecord(value);
   if (issues.length > 0) throw new Error(formatValidationIssues(issues));
@@ -274,6 +310,11 @@ export function assertStabiliRecord(value: unknown): asserts value is StabiliRec
 
 export function assertDatasetMetadata(value: unknown): asserts value is StabiliDatasetMetadata {
   const issues = validateDatasetMetadata(value);
+  if (issues.length > 0) throw new Error(formatValidationIssues(issues));
+}
+
+export function assertStabiliIndexRecord(value: unknown): asserts value is StabiliIndexRecord {
+  const issues = validateStabiliIndexRecord(value);
   if (issues.length > 0) throw new Error(formatValidationIssues(issues));
 }
 

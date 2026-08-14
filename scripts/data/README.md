@@ -163,3 +163,53 @@ Outputs:
 
 This stage does not calculate a health score and does not generate or modify
 frontend data.
+
+## Stabili derived data
+
+The derived-data stage reads `nyc_condition_enriched.json` and makes no network
+requests. It retains one output record per DHCR row, links related records only
+when they share a reliable BBL, computes the documented Stabili Building Health
+V1 interpretation, and adds compact renter-facing count summaries. It does not
+merge records or claim that related records are the same physical building.
+
+```bash
+python3 scripts/data/derive_stabili_data.py
+```
+
+Outputs:
+
+- `data/intermediate/stabili_derived.json` (reproducible working data,
+  gitignored)
+- `data/reports/derived-data-report.json` (health distribution, related-record
+  coverage and largest groups, and records that could not be evaluated)
+
+The exact fields, thresholds, limits, and algorithm version are documented in
+`docs/building-health.md`. This stage does not generate or modify frontend data.
+
+## Static production export
+
+The final stage joins derived records to normalized DHCR source fields, projects
+only the versioned frontend contract, validates every record and relationship,
+and writes compact GitHub Pages artifacts under `public/data/`. `index.json`
+contains discovery, card, filter, and map fields only. Detailed records are
+borough-scoped and automatically split near 40 MiB when needed; metadata lists
+the exact files for each borough.
+
+```bash
+python3 scripts/data/export_stabili_data.py
+npm run validate:data
+```
+
+Outputs:
+
+- `public/data/metadata.json`
+- `public/data/index.json`
+- `public/data/buildings/*.json`
+- `data/reports/export-report.json`
+
+The export excludes raw API queries/responses, caches, raw NYC and DHCR fields,
+matching reason codes and candidate lists, debug fields, and unverified contact
+channels. Exact counts are retained while detailed lists are bounded to the 10
+newest violations and five newest complaint/problem entries per source record.
+It rejects duplicate or dangling IDs, secret-like keys, and common mock/sample
+content before publishing staged artifacts.
