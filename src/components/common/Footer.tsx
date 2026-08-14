@@ -32,12 +32,6 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
           >
             About & Methodology
           </button>
-          <button
-            onClick={() => onNavigate && onNavigate('design-system')}
-            className="hover:text-teal-700 transition-colors cursor-pointer"
-          >
-            Design System
-          </button>
           <a
             href="https://hpd.nyc.gov"
             target="_blank"
@@ -67,4 +61,3 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
     </footer>
   );
 };
-

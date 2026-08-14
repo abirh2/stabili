@@ -1,14 +1,15 @@
-import React, { useState } from 'react';
-import { 
-  ShieldCheck, 
-  MapPin, 
-  Plus, 
-  Minus, 
-  Crosshair, 
-  ArrowRight,
-  X
-} from 'lucide-react';
-import { BuildingRecord } from '../../types';
+import React, { useEffect, useMemo, useState } from 'react';
+import type { LatLngExpression } from 'leaflet';
+import { ArrowRight, MapPin, ShieldCheck } from 'lucide-react';
+import { MapContainer, Marker, Popup, TileLayer, useMap } from 'react-leaflet';
+import type { BuildingRecord } from '../../types';
+import {
+  buildingMarkerIcon,
+  hasValidCoordinates,
+  type MappableBuilding,
+  OSM_ATTRIBUTION,
+  OSM_TILE_URL,
+} from '../maps/leaflet';
 
 interface ExploreMapProps {
   buildings: BuildingRecord[];
@@ -17,253 +18,129 @@ interface ExploreMapProps {
   onHoverBuilding?: (id: string | null) => void;
 }
 
-// Coordinates mapping for realistic NYC visual layout on relative SVG/HTML grid
-const BUILDING_MAP_COORDS: Record<string, { x: number; y: number; label: string }> = {
-  '3151-perry-ave': { x: 62, y: 16, label: 'Norwood' },
-  '450-e-148th-st': { x: 58, y: 30, label: 'Mott Haven' },
-  '250-sherman-ave': { x: 38, y: 22, label: 'Inwood' },
-  '342-w-85th-st': { x: 36, y: 45, label: 'Upper West Side' },
-  '84-perry-st': { x: 34, y: 64, label: 'West Village' },
-  '28-15-34th-st': { x: 64, y: 46, label: 'Astoria' },
-  '32-20-89th-st': { x: 78, y: 52, label: 'Jackson Heights' },
-  '120-n-7th-st': { x: 48, y: 65, label: 'Williamsburg' },
-  '1200-pacific-st': { x: 54, y: 76, label: 'Crown Heights' },
+interface MapViewportProps {
+  positions: LatLngExpression[];
+}
+
+const NYC_CENTER: LatLngExpression = [40.7128, -74.006];
+
+const MapViewport: React.FC<MapViewportProps> = ({ positions }) => {
+  const map = useMap();
+
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => map.invalidateSize());
+    if (positions.length === 0) {
+      map.setView(NYC_CENTER, 10, { animate: false });
+    } else if (positions.length === 1) {
+      map.setView(positions[0], 15, { animate: false });
+    } else {
+      map.fitBounds(positions, { padding: [28, 28], maxZoom: 15, animate: false });
+    }
+    return () => window.cancelAnimationFrame(frame);
+  }, [map, positions]);
+
+  return null;
 };
 
-export const ExploreMap: React.FC<ExploreMapProps> = ({
+interface BuildingMarkerProps {
+  building: MappableBuilding;
+  isActive: boolean;
+  onActivate: (id: string) => void;
+  onOpen: (id: string) => void;
+  onHover?: (id: string | null) => void;
+}
+
+const BuildingMarker: React.FC<BuildingMarkerProps> = React.memo(({
+  building,
+  isActive,
+  onActivate,
+  onOpen,
+  onHover,
+}) => {
+  const icon = useMemo(() => buildingMarkerIcon(isActive), [isActive]);
+  const eventHandlers = useMemo(() => ({
+    click: () => onActivate(building.id),
+    mouseover: () => onHover?.(building.id),
+    mouseout: () => onHover?.(null),
+  }), [building.id, onActivate, onHover]);
+
+  return (
+    <Marker position={[building.latitude, building.longitude]} icon={icon} eventHandlers={eventHandlers}>
+      <Popup minWidth={220} maxWidth={280}>
+        <div className="min-w-0">
+          <span className="block text-[10px] font-medium uppercase tracking-wider text-slate-400">{building.neighborhood} · {building.borough}</span>
+          <strong className="mt-0.5 block break-words text-sm text-slate-900">{building.address}</strong>
+          <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-slate-500">
+            <span className="inline-flex items-center gap-1 font-medium text-emerald-800">
+              <ShieldCheck className="h-3 w-3" aria-hidden="true" /> Stabilized
+            </span>
+            {building.units !== null && building.units !== undefined && <span>{building.units.toLocaleString()} units</span>}
+          </div>
+          <button
+            type="button"
+            onClick={() => onOpen(building.id)}
+            className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-teal-700 hover:text-teal-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
+          >
+            View building <ArrowRight className="h-3 w-3" aria-hidden="true" />
+          </button>
+        </div>
+      </Popup>
+    </Marker>
+  );
+});
+
+BuildingMarker.displayName = 'BuildingMarker';
+
+export const ExploreMap: React.FC<ExploreMapProps> = React.memo(({
   buildings,
   activeBuildingId,
   onSelectBuilding,
   onHoverBuilding,
 }) => {
-  const [zoomLevel, setZoomLevel] = useState(1);
-  const [activePopupId, setActivePopupId] = useState<string | null>(null);
-
-  const activeBuilding = buildings.find(
-    (b) => b.id === (activePopupId || activeBuildingId)
+  const [selectedBuildingId, setSelectedBuildingId] = useState<string | null>(null);
+  const mappableBuildings = useMemo(() => buildings.filter(hasValidCoordinates), [buildings]);
+  const positions = useMemo<LatLngExpression[]>(
+    () => mappableBuildings.map((building) => [building.latitude, building.longitude]),
+    [mappableBuildings],
   );
 
-  const handleZoomIn = () => setZoomLevel((z) => Math.min(z + 0.2, 1.6));
-  const handleZoomOut = () => setZoomLevel((z) => Math.max(z - 0.2, 0.8));
-  const handleResetZoom = () => setZoomLevel(1);
+  useEffect(() => {
+    if (selectedBuildingId && !mappableBuildings.some((building) => building.id === selectedBuildingId)) {
+      setSelectedBuildingId(null);
+    }
+  }, [mappableBuildings, selectedBuildingId]);
 
   return (
-    <div className="relative w-full h-full min-h-[460px] bg-[#F4F5F7] rounded-2xl border border-slate-200/80 overflow-hidden select-none flex flex-col justify-between">
-      {/* Visual Map Canvas Grid Background */}
-      <div 
-        className="absolute inset-0 transition-transform duration-300 ease-out"
-        style={{ transform: `scale(${zoomLevel})`, transformOrigin: 'center center' }}
-      >
-        {/* SVG Stylized NYC Geographic Waterways & Landmass Outline */}
-        <svg 
-          className="w-full h-full opacity-50 pointer-events-none" 
-          viewBox="0 0 1000 1000" 
-          preserveAspectRatio="xMidYMid slice"
-        >
-          <defs>
-            <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-              <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#E2E8F0" strokeWidth="0.8" />
-            </pattern>
-          </defs>
-
-          <rect width="100%" height="100%" fill="url(#grid)" />
-
-          {/* Hudson River & East River Waterways */}
-          <path
-            d="M 280,0 C 270,250 290,400 300,550 C 310,700 240,850 200,1000"
-            fill="none"
-            stroke="#BAE6FD"
-            strokeWidth="32"
-            strokeLinecap="round"
+    <div className="stabili-leaflet-frame relative h-full min-h-[460px] w-full bg-slate-100">
+      <MapContainer center={NYC_CENTER} zoom={10} scrollWheelZoom className="h-full w-full" aria-label="Map of filtered Stabili building records">
+        <TileLayer attribution={OSM_ATTRIBUTION} url={OSM_TILE_URL} />
+        <MapViewport positions={positions} />
+        {mappableBuildings.map((building) => (
+          <BuildingMarker
+            key={building.id}
+            building={building}
+            isActive={building.id === (selectedBuildingId ?? activeBuildingId)}
+            onActivate={setSelectedBuildingId}
+            onOpen={onSelectBuilding}
+            onHover={onHoverBuilding}
           />
-          {/* East River */}
-          <path
-            d="M 460,250 C 440,380 430,500 360,620 C 310,710 320,850 330,1000"
-            fill="none"
-            stroke="#BAE6FD"
-            strokeWidth="26"
-            strokeLinecap="round"
-          />
-          {/* Harlem River */}
-          <path
-            d="M 460,250 C 400,220 340,240 280,260"
-            fill="none"
-            stroke="#BAE6FD"
-            strokeWidth="18"
-            strokeLinecap="round"
-          />
+        ))}
+      </MapContainer>
 
-          {/* Major NYC Avenue/Street Grid Guidelines */}
-          <line x1="320" y1="280" x2="350" y2="700" stroke="#CBD5E1" strokeWidth="2" strokeDasharray="6 4" />
-          <line x1="360" y1="300" x2="390" y2="720" stroke="#CBD5E1" strokeWidth="1.5" strokeDasharray="6 4" />
-          <line x1="260" y1="400" x2="450" y2="400" stroke="#CBD5E1" strokeWidth="1.2" />
-          <line x1="260" y1="520" x2="480" y2="520" stroke="#CBD5E1" strokeWidth="1.2" />
-          <line x1="450" y1="480" x2="850" y2="480" stroke="#CBD5E1" strokeWidth="1.5" />
-          <line x1="420" y1="680" x2="800" y2="750" stroke="#CBD5E1" strokeWidth="1.5" />
-
-          {/* Borough Watermark Typographic Labels */}
-          <text x="600" y="200" fill="#94A3B8" fontSize="24" fontWeight="600" letterSpacing="6" opacity="0.4">
-            THE BRONX
-          </text>
-          <text x="240" y="490" fill="#94A3B8" fontSize="24" fontWeight="600" letterSpacing="6" opacity="0.4">
-            MANHATTAN
-          </text>
-          <text x="680" y="440" fill="#94A3B8" fontSize="24" fontWeight="600" letterSpacing="6" opacity="0.4">
-            QUEENS
-          </text>
-          <text x="560" y="780" fill="#94A3B8" fontSize="24" fontWeight="600" letterSpacing="6" opacity="0.4">
-            BROOKLYN
-          </text>
-        </svg>
-
-        {/* Building Map Pins */}
-        <div className="absolute inset-0">
-          {buildings.map((building) => {
-            const coords = BUILDING_MAP_COORDS[building.id] || { x: 50, y: 50, label: building.neighborhood };
-            const isSelected = activeBuildingId === building.id;
-            const isPopupActive = activePopupId === building.id;
-
-            return (
-              <div
-                key={building.id}
-                style={{ left: `${coords.x}%`, top: `${coords.y}%` }}
-                className="absolute -translate-x-1/2 -translate-y-1/2 z-20 cursor-pointer group"
-                onClick={() => {
-                  setActivePopupId(building.id);
-                  onSelectBuilding(building.id);
-                }}
-                onMouseEnter={() => {
-                  if (onHoverBuilding) onHoverBuilding(building.id);
-                }}
-                onMouseLeave={() => {
-                  if (onHoverBuilding) onHoverBuilding(null);
-                }}
-              >
-                <div
-                  className={`relative flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-all duration-150 shadow-xs ${
-                    isSelected || isPopupActive
-                      ? 'bg-teal-700 text-white scale-105 ring-2 ring-teal-500/30'
-                      : 'bg-white text-slate-800 border border-slate-200/90 hover:border-teal-600 hover:text-teal-800 hover:scale-102'
-                  }`}
-                >
-                  <ShieldCheck className={`w-3.5 h-3.5 shrink-0 ${isSelected || isPopupActive ? 'text-teal-200' : 'text-emerald-700'}`} />
-                  <span className="whitespace-nowrap">{building.address.split(' ')[0]} {building.address.split(' ')[1]}</span>
-                  <span className={`text-[10px] px-1.5 py-0.2 rounded-full ${
-                    isSelected || isPopupActive ? 'bg-teal-800 text-teal-100' : 'bg-slate-100 text-slate-600'
-                  }`}>
-                    {building.units}u
-                  </span>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+      <div className="pointer-events-none absolute left-16 top-3 z-[500] flex max-w-[calc(100%-5rem)] items-center gap-2 rounded-xl bg-white/95 px-3 py-2 text-xs text-slate-700 shadow-sm ring-1 ring-slate-200/80">
+        <MapPin className="h-3.5 w-3.5 shrink-0 text-teal-700" aria-hidden="true" />
+        <span className="truncate font-medium">Filtered buildings</span>
+        <span className="shrink-0 tabular-nums text-slate-500">{mappableBuildings.length.toLocaleString()} mapped</span>
       </div>
 
-      {/* Top Map Action Bar */}
-      <div className="relative z-30 p-3 sm:p-4 flex items-center justify-between pointer-events-auto">
-        <div className="flex items-center gap-2 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full border border-slate-200/80 shadow-xs text-xs font-medium text-slate-700">
-          <MapPin className="w-3.5 h-3.5 text-teal-600" />
-          <span>NYC Stabilized Map</span>
-          <span className="bg-teal-50 text-teal-800 text-[10px] font-semibold px-2 py-0.2 rounded-full border border-teal-100">
-            {buildings.length} plotted
-          </span>
+      {mappableBuildings.length === 0 && (
+        <div className="pointer-events-none absolute inset-x-4 top-1/2 z-[500] -translate-y-1/2 rounded-2xl bg-white/95 p-5 text-center shadow-sm ring-1 ring-slate-200/80">
+          <h3 className="text-sm font-semibold text-slate-900">No mapped buildings in these results</h3>
+          <p className="mt-1 text-xs text-slate-500">Records without valid coordinates remain available in the list.</p>
         </div>
-
-        {/* Map Zoom Controls */}
-        <div className="flex items-center gap-1 bg-white/90 backdrop-blur-md p-1 rounded-xl border border-slate-200/80 shadow-xs">
-          <button
-            type="button"
-            onClick={handleZoomIn}
-            className="p-1.5 text-slate-600 hover:text-teal-700 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
-            title="Zoom in"
-          >
-            <Plus className="w-3.5 h-3.5" />
-          </button>
-          <button
-            type="button"
-            onClick={handleZoomOut}
-            className="p-1.5 text-slate-600 hover:text-teal-700 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
-            title="Zoom out"
-          >
-            <Minus className="w-3.5 h-3.5" />
-          </button>
-          <button
-            type="button"
-            onClick={handleResetZoom}
-            className="p-1.5 text-slate-600 hover:text-teal-700 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
-            title="Recenter NYC map"
-          >
-            <Crosshair className="w-3.5 h-3.5" />
-          </button>
-        </div>
-      </div>
-
-      {/* Bottom Floating Interactive Card / Legend */}
-      <div className="relative z-30 p-3 sm:p-4 flex flex-col md:flex-row items-end justify-between gap-3 pointer-events-auto">
-        {/* Floating Building Preview Card when pin clicked */}
-        {activeBuilding ? (
-          <div className="w-full max-w-sm bg-white p-3.5 rounded-2xl border border-slate-200/90 shadow-md animate-in fade-in slide-in-from-bottom-2 duration-150">
-            <div className="flex items-start justify-between gap-2">
-              <div>
-                <span className="text-[10px] font-medium text-slate-400 uppercase tracking-wider block">
-                  {activeBuilding.neighborhood} · {activeBuilding.borough}
-                </span>
-                <h4 className="text-sm font-semibold text-slate-900 mt-0.5">
-                  {activeBuilding.address}
-                </h4>
-              </div>
-              <button
-                type="button"
-                onClick={() => setActivePopupId(null)}
-                className="p-1 text-slate-400 hover:text-slate-600 rounded-lg cursor-pointer"
-                aria-label="Close preview"
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
-            </div>
-
-            <div className="flex items-center gap-2 mt-2 text-xs text-slate-600">
-              <span className="inline-flex items-center gap-1 font-medium text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200/60 text-[11px]">
-                <ShieldCheck className="w-3 h-3 text-emerald-700" /> Stabilized
-              </span>
-              <span>{activeBuilding.units} units</span>
-              <span>•</span>
-              <span>Built {activeBuilding.yearBuilt}</span>
-            </div>
-
-            <div className="mt-3 pt-2 border-t border-slate-100 flex items-center justify-between">
-              <span className="text-xs text-slate-500 truncate max-w-[170px]">
-                {activeBuilding.managingAgent}
-              </span>
-              <button
-                type="button"
-                onClick={() => onSelectBuilding(activeBuilding.id)}
-                className="inline-flex items-center gap-1 text-xs font-medium text-teal-700 hover:text-teal-900 cursor-pointer"
-              >
-                <span>View</span>
-                <ArrowRight className="w-3 h-3" />
-              </button>
-            </div>
-          </div>
-        ) : (
-          <div className="hidden sm:block text-xs text-slate-500 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-xl border border-slate-200/80 shadow-xs">
-            Click any pin on the NYC map to preview building details
-          </div>
-        )}
-
-        {/* Map Legend */}
-        <div className="bg-white/90 backdrop-blur-md px-3 py-2 rounded-xl border border-slate-200/80 shadow-xs text-xs space-y-0.5 self-end">
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-600" />
-            <span className="text-slate-700 font-medium">Rent-stabilized record</span>
-          </div>
-          <div className="flex items-center gap-2 text-slate-500 text-[11px]">
-            <span>{buildings.length} verified buildings shown</span>
-          </div>
-        </div>
-      </div>
+      )}
     </div>
   );
-};
+});
 
+ExploreMap.displayName = 'ExploreMap';

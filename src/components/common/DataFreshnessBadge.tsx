@@ -14,7 +14,7 @@ export const DataFreshnessBadge: React.FC<DataFreshnessBadgeProps> = ({
   className = '',
   variant = 'badge',
 }) => {
-  const displayText = updatedLabel || (date ? `Public record retrieved ${date}` : 'Updated Aug 2026');
+  const displayText = updatedLabel || (date ? `Public record retrieved ${date}` : 'Update date unavailable');
 
   if (variant === 'subtle') {
     return (

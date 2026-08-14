@@ -33,7 +33,7 @@ export const BuildingCard: React.FC<BuildingCardProps> = ({
   onToggleSave,
   onHover,
 }) => {
-  const hasContact = Boolean(building.phone || building.website || building.managingAgent || building.email);
+  const hasContact = Boolean(building.phone || building.website || building.email);
   
   // Secondary / alternate address line representation
   const secondaryAddressText = building.secondaryAddress || (building.alternateAddresses && building.alternateAddresses[0]);
@@ -277,6 +277,5 @@ export const BuildingCard: React.FC<BuildingCardProps> = ({
     </div>
   );
 };
-
 
 

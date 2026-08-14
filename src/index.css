@@ -1,3 +1,4 @@
+@import "leaflet/dist/leaflet.css";
 @import "tailwindcss";
 
 @layer base {
@@ -65,3 +66,82 @@
   scrollbar-width: none;
 }
 
+/* Leaflet keeps its native map affordances while matching Stabili's surfaces. */
+.stabili-leaflet-frame {
+  overflow: hidden;
+  border-radius: 1rem;
+}
+
+.stabili-leaflet-frame .leaflet-container {
+  background: #e2e8f0;
+  color: #1e293b;
+  font-family: var(--font-sans);
+}
+
+.stabili-leaflet-frame .leaflet-bar {
+  overflow: hidden;
+  border: 0;
+  border-radius: 0.75rem;
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.14);
+}
+
+.stabili-leaflet-frame .leaflet-bar a {
+  border-color: #e2e8f0;
+  color: #475569;
+}
+
+.stabili-leaflet-frame .leaflet-bar a:hover,
+.stabili-leaflet-frame .leaflet-bar a:focus-visible {
+  background: #f8fafc;
+  color: #0f766e;
+}
+
+.stabili-leaflet-frame .leaflet-control-attribution {
+  background: rgba(255, 255, 255, 0.9);
+  color: #64748b;
+  font-size: 10px;
+}
+
+.stabili-leaflet-frame .leaflet-control-attribution a {
+  color: #0f766e;
+}
+
+.stabili-leaflet-frame .leaflet-popup-content-wrapper {
+  border-radius: 0.875rem;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.18);
+}
+
+.stabili-leaflet-frame .leaflet-popup-content {
+  margin: 0.875rem 1rem;
+}
+
+.stabili-leaflet-marker-shell {
+  background: transparent;
+  border: 0;
+}
+
+.stabili-leaflet-marker {
+  display: flex;
+  width: 30px;
+  height: 30px;
+  align-items: center;
+  justify-content: center;
+  border: 3px solid #ffffff;
+  border-radius: 50% 50% 50% 0;
+  background: #0f766e;
+  box-shadow: 0 3px 10px rgba(15, 23, 42, 0.3);
+  transform: rotate(-45deg);
+  transition: transform 140ms ease-out, background-color 140ms ease-out;
+}
+
+.stabili-leaflet-marker > span {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #ffffff;
+}
+
+.stabili-leaflet-marker.is-active {
+  background: #115e59;
+  transform: rotate(-45deg) scale(1.16);
+}

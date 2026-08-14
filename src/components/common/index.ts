@@ -10,7 +10,6 @@ export * from './StatItem';
 export * from './SectionHeader';
 export * from './EmptyState';
 export * from './ContactActions';
-export * from './ManagementCard';
 export * from './PageContainer';
 export * from './TopNavBar';
 export * from './Footer';

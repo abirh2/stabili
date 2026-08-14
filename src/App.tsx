@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Route } from './types';
 import { TopNavBar } from './components/common/TopNavBar';
 import { Footer } from './components/common/Footer';
@@ -14,33 +14,55 @@ import { ManagementProfilePage } from './pages/ManagementProfilePage';
 import { SavedPage } from './pages/SavedPage';
 import { AboutPage } from './pages/AboutPage';
 import { DesignSystemShowcase } from './pages/DesignSystemShowcase';
+import { locationHash, navigateTo, parseHash, replaceHash, type AppLocation } from './routing';
 
 export default function App() {
-  const [currentRoute, setCurrentRoute] = useState<Route>('explore');
-  const [selectedBuildingId, setSelectedBuildingId] = useState<string>('3151-perry-ave');
-  const [selectedManagementId, setSelectedManagementId] = useState<string>('example-mgmt');
+  const [location, setLocation] = useState<AppLocation>(() => parseHash(window.location.hash));
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [savedBuildingIds, setSavedBuildingIds] = useState<string[]>([
-    '3151-perry-ave',
-    '28-15-34th-st',
-    '32-20-89th-st',
-  ]);
+  const [savedBuildingIds, setSavedBuildingIds] = useState<string[]>(() => {
+    try {
+      const stored = window.localStorage.getItem('stabili.savedBuildingIds');
+      const parsed: unknown = stored ? JSON.parse(stored) : [];
+      return Array.isArray(parsed) ? parsed.filter((id): id is string => typeof id === 'string') : [];
+    } catch {
+      return [];
+    }
+  });
+
+  useEffect(() => {
+    const syncLocation = () => {
+      const nextLocation = parseHash(window.location.hash);
+      if (window.location.hash !== locationHash(nextLocation)) replaceHash(nextLocation);
+      setLocation(nextLocation);
+    };
+
+    if (!window.location.hash) replaceHash(location);
+    window.addEventListener('hashchange', syncLocation);
+    return () => window.removeEventListener('hashchange', syncLocation);
+  }, []);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  }, [location]);
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem('stabili.savedBuildingIds', JSON.stringify(savedBuildingIds));
+    } catch {
+      // Storage can be unavailable in privacy-restricted browser contexts.
+    }
+  }, [savedBuildingIds]);
 
   const handleNavigate = (route: Route) => {
-    setCurrentRoute(route);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    navigateTo({ route });
   };
 
   const handleSelectBuilding = (id: string) => {
-    setSelectedBuildingId(id);
-    setCurrentRoute('building-details');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    navigateTo({ route: 'building-details', buildingId: id });
   };
 
   const handleSelectManagement = (id: string) => {
-    setSelectedManagementId(id);
-    setCurrentRoute('management-profile');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    navigateTo({ route: 'management-profile', managementId: id });
   };
 
   const handleToggleSaveBuilding = (id: string) => {
@@ -53,7 +75,7 @@ export default function App() {
     <div className="min-h-screen flex flex-col bg-[#F8F9FA] text-slate-800 font-sans">
       {/* Universal Sticky Frosted Navigation Bar */}
       <TopNavBar
-        currentRoute={currentRoute}
+        currentRoute={location.route}
         onNavigate={handleNavigate}
         onOpenSearch={() => setIsSearchOpen(true)}
         savedCount={savedBuildingIds.length}
@@ -61,7 +83,7 @@ export default function App() {
 
       {/* Main Content Area Routing */}
       <div className="flex-1">
-        {currentRoute === 'explore' && (
+        {location.route === 'explore' && (
           <ExplorePage
             onSelectBuilding={handleSelectBuilding}
             onSelectManagement={handleSelectManagement}
@@ -71,19 +93,20 @@ export default function App() {
           />
         )}
 
-        {currentRoute === 'building-details' && (
+        {location.route === 'building-details' && location.buildingId && (
           <BuildingDetailsPage
-            buildingId={selectedBuildingId}
+            buildingId={location.buildingId}
+            onSelectBuilding={handleSelectBuilding}
             onSelectManagement={handleSelectManagement}
             onNavigate={handleNavigate}
-            isSaved={savedBuildingIds.includes(selectedBuildingId)}
-            onToggleSave={() => handleToggleSaveBuilding(selectedBuildingId)}
+            isSaved={savedBuildingIds.includes(location.buildingId)}
+            onToggleSave={() => handleToggleSaveBuilding(location.buildingId!)}
           />
         )}
 
-        {currentRoute === 'management-profile' && (
+        {location.route === 'management-profile' && location.managementId && (
           <ManagementProfilePage
-            managementId={selectedManagementId}
+            managementId={location.managementId}
             onSelectBuilding={handleSelectBuilding}
             onNavigate={handleNavigate}
             savedBuildingIds={savedBuildingIds}
@@ -91,7 +114,7 @@ export default function App() {
           />
         )}
 
-        {currentRoute === 'saved' && (
+        {location.route === 'saved' && (
           <SavedPage
             savedBuildingIds={savedBuildingIds}
             onToggleSaveBuilding={handleToggleSaveBuilding}
@@ -101,11 +124,11 @@ export default function App() {
           />
         )}
 
-        {currentRoute === 'about' && (
+        {location.route === 'about' && (
           <AboutPage onNavigate={handleNavigate} />
         )}
 
-        {currentRoute === 'design-system' && (
+        {location.route === 'design-system' && (
           <DesignSystemShowcase onNavigate={handleNavigate} />
         )}
       </div>
@@ -124,4 +147,3 @@ export default function App() {
     </div>
   );
 }
-

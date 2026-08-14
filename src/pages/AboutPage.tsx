@@ -38,7 +38,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
     },
     {
       q: 'Does finding a building here guarantee a vacant apartment?',
-      a: 'No. Stabili provides the registry of buildings that contain stabilized units. Renters can use our direct management directory to contact landlords or managing agents and ask to be placed on waiting lists or notified of upcoming vacancies.',
+      a: 'No. Stabili provides records for buildings listed in the stabilization source. When the generated public record includes owner or management information, renters can use it as a starting point for further research.',
     },
     {
       q: 'How can a tenant check their individual apartment rent history?',
@@ -156,7 +156,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
             Ready to find your next home?
           </h3>
           <p className="text-xs sm:text-sm text-slate-500 mt-1 mb-5 max-w-md mx-auto">
-            Search rent-stabilized buildings across all 5 NYC boroughs with verified records.
+            Search generated rent-stabilized building records across all 5 NYC boroughs.
           </p>
           <Button
             variant="primary"

@@ -1,6 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { Search, X, Building2, MapPin, Briefcase, ArrowRight } from 'lucide-react';
-import { Route } from '../../types';
+import React, { useEffect, useMemo, useState } from 'react';
+import { ArrowRight, Briefcase, Building2, Search, X } from 'lucide-react';
+import { displayBorough } from '../../data/adapters';
+import { loadBuildingIndex, managementKey } from '../../data/client';
+import type { StabiliIndexRecord } from '../../data/schema';
+import type { Route } from '../../types';
 
 interface QuickSearchModalProps {
   isOpen: boolean;
@@ -10,173 +13,47 @@ interface QuickSearchModalProps {
   onNavigate: (route: Route) => void;
 }
 
-export const QuickSearchModal: React.FC<QuickSearchModalProps> = ({
-  isOpen,
-  onClose,
-  onSelectBuilding,
-  onSelectManagement,
-  onNavigate,
-}) => {
+export const QuickSearchModal: React.FC<QuickSearchModalProps> = ({ isOpen, onClose, onSelectBuilding, onSelectManagement }) => {
   const [query, setQuery] = useState('');
+  const [records, setRecords] = useState<StabiliIndexRecord[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen) {
-        onClose();
-      }
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-        e.preventDefault();
-        if (isOpen) onClose();
-      }
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && isOpen) onClose();
+      if ((event.metaKey || event.ctrlKey) && event.key === 'k') { event.preventDefault(); if (isOpen) onClose(); }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
 
+  useEffect(() => {
+    if (!isOpen || records.length) return;
+    setLoading(true); setError(false);
+    loadBuildingIndex().then(setRecords).catch(() => setError(true)).finally(() => setLoading(false));
+  }, [isOpen, records.length]);
+
+  const results = useMemo(() => {
+    const normalized = query.trim().toLocaleLowerCase();
+    if (!normalized) return { buildings: [] as StabiliIndexRecord[], management: [] as string[] };
+    const buildings = records.filter((record) => [record.address, record.zipCode, displayBorough(record.borough), record.managementName].some((value) => value?.toLocaleLowerCase().includes(normalized))).slice(0, 6);
+    const management = Array.from(new Set(records.map((record) => record.managementName).filter((value): value is string => Boolean(value) && value!.toLocaleLowerCase().includes(normalized)))).slice(0, 4);
+    return { buildings, management };
+  }, [query, records]);
+
   if (!isOpen) return null;
+  const hasResults = results.buildings.length > 0 || results.management.length > 0;
 
-  const sampleResults = [
-    {
-      type: 'building',
-      id: '172-182-castleton-ave',
-      title: '172-182 Castleton Avenue',
-      subtitle: 'Silver Lake, Staten Island · Also associated with 351 Woodstock Ave · Garden complex',
-      badge: 'Garden complex',
-    },
-    {
-      type: 'building',
-      id: '29-avon-pl',
-      title: '29 Avon Place',
-      subtitle: 'St. George, Staten Island · Also associated with 31 Avon Pl',
-      badge: 'Stabilized Record',
-    },
-    {
-      type: 'building',
-      id: '32-20-89th-st',
-      title: '32-20 - 32-34 89th Street',
-      subtitle: 'Jackson Heights, Queens · Part of Jackson Heights Garden Colony',
-      badge: 'Garden complex',
-    },
-    {
-      type: 'building',
-      id: '3151-perry-ave',
-      title: '3151 Perry Avenue',
-      subtitle: 'Norwood, Bronx · 42 Stabilized Units',
-      badge: 'Stabilized Record',
-    },
-    {
-      type: 'building',
-      id: '28-15-34th-st',
-      title: '28-15 34th Street',
-      subtitle: 'Astoria, Queens · 24 Stabilized Units',
-      badge: 'Stabilized Record',
-    },
-    {
-      type: 'management',
-      id: 'example-mgmt',
-      title: 'Example Management LLC',
-      subtitle: '12 Stabilized Buildings in NYC · ~518 Units',
-      badge: 'Verified Owner',
-    },
-    {
-      type: 'neighborhood',
-      id: 'astoria',
-      title: 'Astoria, Queens',
-      subtitle: 'Over 1,200 Rent-Stabilized buildings',
-      badge: 'Neighborhood',
-    },
-  ].filter((item) => 
-    !query || item.title.toLowerCase().includes(query.toLowerCase()) || item.subtitle.toLowerCase().includes(query.toLowerCase())
-  );
-
-  return (
-    <div 
-      className="fixed inset-0 z-50 flex items-start justify-center pt-16 sm:pt-24 px-4 bg-black/25 backdrop-blur-xs animate-in fade-in duration-150"
-      onClick={onClose}
-    >
-      <div
-        className="w-full max-w-xl bg-white border border-slate-200/90 rounded-2xl shadow-xl overflow-hidden animate-in zoom-in-95 duration-150"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Search Header */}
-        <div className="flex items-center px-4 py-3 border-b border-slate-100 gap-3">
-          <Search className="w-4 h-4 text-teal-600 shrink-0" />
-          <input
-            type="text"
-            autoFocus
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search address, neighborhood, or management..."
-            className="flex-1 text-sm text-slate-900 placeholder:text-slate-400 bg-transparent focus:outline-none"
-          />
-          {query && (
-            <button
-              onClick={() => setQuery('')}
-              className="p-1 text-slate-400 hover:text-slate-700 rounded-full cursor-pointer transition-colors"
-              aria-label="Clear input"
-            >
-              <X className="w-3.5 h-3.5" />
-            </button>
-          )}
-          <button
-            onClick={onClose}
-            className="text-[11px] font-medium px-2 py-0.5 bg-slate-100 text-slate-600 rounded-md border border-slate-200/80 cursor-pointer hover:bg-slate-200/70 transition-colors"
-          >
-            ESC
-          </button>
-        </div>
-
-        {/* Quick Results */}
-        <div className="max-h-80 overflow-y-auto stabili-scroller p-2 space-y-0.5">
-          <div className="px-2.5 py-1 text-[11px] font-semibold tracking-wider uppercase text-slate-400">
-            {query ? 'Search Results' : 'Suggested NYC Searches'}
-          </div>
-
-          {sampleResults.map((res) => (
-            <button
-              key={res.id}
-              onClick={() => {
-                if (res.type === 'building') {
-                  onSelectBuilding(res.id);
-                } else if (res.type === 'management') {
-                  onSelectManagement(res.id);
-                } else {
-                  onNavigate('explore');
-                }
-                onClose();
-              }}
-              className="w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-slate-50 transition-colors text-left group cursor-pointer"
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-teal-50 text-teal-700 flex items-center justify-center shrink-0 border border-teal-100/80">
-                  {res.type === 'building' && <Building2 className="w-4 h-4" />}
-                  {res.type === 'management' && <Briefcase className="w-4 h-4" />}
-                  {res.type === 'neighborhood' && <MapPin className="w-4 h-4" />}
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs sm:text-sm font-medium text-slate-900 group-hover:text-teal-800 transition-colors">
-                      {res.title}
-                    </span>
-                    <span className="text-[10px] font-medium px-2 py-0.2 rounded-full bg-slate-100 text-slate-600 border border-slate-200/70">
-                      {res.badge}
-                    </span>
-                  </div>
-                  <p className="text-xs text-slate-500 mt-0.5">{res.subtitle}</p>
-                </div>
-              </div>
-              <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-teal-600 group-hover:translate-x-0.5 transition-all" />
-            </button>
-          ))}
-        </div>
-
-        {/* Footer info */}
-        <div className="px-4 py-2.5 bg-slate-50/90 border-t border-slate-100 flex justify-between items-center text-xs text-slate-500">
-          <span>Filter by borough or search directly</span>
-          <span className="text-[11px] text-slate-400">Press ↵ to select</span>
-        </div>
+  return <div className="fixed inset-0 z-50 flex items-start justify-center pt-16 sm:pt-24 px-4 bg-black/25 backdrop-blur-xs" onClick={onClose}>
+    <div className="w-full max-w-xl bg-white border border-slate-200/90 rounded-2xl shadow-xl overflow-hidden" onClick={(event) => event.stopPropagation()}>
+      <div className="flex items-center px-4 py-3 border-b border-slate-100 gap-3"><Search className="w-4 h-4 text-teal-600" /><input autoFocus value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search address, borough, ZIP, or management..." className="flex-1 text-sm bg-transparent focus:outline-none" />{query && <button onClick={() => setQuery('')}><X className="w-3.5 h-3.5 text-slate-400" /></button>}<button onClick={onClose} className="text-[11px] px-2 py-0.5 bg-slate-100 rounded-md border">ESC</button></div>
+      <div className="max-h-96 overflow-y-auto p-2">
+        {loading ? <p className="p-6 text-center text-xs text-slate-500">Loading generated search index…</p> : error ? <p className="p-6 text-center text-xs text-rose-700">The generated search index could not be loaded.</p> : !query.trim() ? <p className="p-6 text-center text-xs text-slate-500">Start typing to search the current generated dataset.</p> : !hasResults ? <p className="p-6 text-center text-xs text-slate-500">No matching records found.</p> : <>
+          {results.buildings.map((record) => <button key={record.id} onClick={() => { onSelectBuilding(record.id); onClose(); }} className="w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-slate-50 text-left group"><div className="flex items-center gap-3"><span className="w-8 h-8 rounded-lg bg-teal-50 text-teal-700 flex items-center justify-center"><Building2 className="w-4 h-4" /></span><span><strong className="block text-sm text-slate-900">{record.address ?? 'Address unavailable'}</strong><small className="text-xs text-slate-500">{displayBorough(record.borough)}{record.zipCode ? ` · ${record.zipCode}` : ''}</small></span></div><ArrowRight className="w-3.5 h-3.5 text-slate-400" /></button>)}
+          {results.management.map((name) => <button key={name} onClick={() => { onSelectManagement(managementKey(name)); onClose(); }} className="w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-slate-50 text-left"><div className="flex items-center gap-3"><span className="w-8 h-8 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center"><Briefcase className="w-4 h-4" /></span><span><strong className="block text-sm text-slate-900">{name}</strong><small className="text-xs text-slate-500">Exact management name on generated records</small></span></div><ArrowRight className="w-3.5 h-3.5 text-slate-400" /></button>)}
+        </>}
       </div>
     </div>
-  );
+  </div>;
 };
-

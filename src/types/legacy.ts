@@ -57,6 +57,8 @@ export interface BuildingRecord {
   neighborhood: string;
   borough: 'Manhattan' | 'Brooklyn' | 'Queens' | 'Bronx' | 'Staten Island';
   zipCode: string;
+  latitude?: number | null;
+  longitude?: number | null;
   units?: number | null;
   yearBuilt?: number | null;
   stories?: number | null;
@@ -106,7 +108,6 @@ export interface ManagementCompany {
   phone?: string | null;
   email?: string | null;
   website?: string | null;
-  isVerified?: boolean;
   totalStabilizedBuildings?: number | null;
   totalResidentialUnits?: number | null;
   boroughBreakdown?: {

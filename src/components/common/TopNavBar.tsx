@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, User, Menu, X, Bookmark, Layers } from 'lucide-react';
+import { Search, Menu, X, Bookmark } from 'lucide-react';
 import { StabiliLogo } from './StabiliLogo';
 import { Route } from '../../types';
 
@@ -130,16 +130,6 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
                     <Bookmark className="w-3.5 h-3.5 text-teal-600" />
                     <span>Saved Buildings ({savedCount})</span>
                   </button>
-                  <button
-                    onClick={() => {
-                      onNavigate('design-system');
-                      setProfileDropdownOpen(false);
-                    }}
-                    className="w-full flex items-center gap-2 px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 rounded-xl text-left transition-colors cursor-pointer"
-                  >
-                    <Layers className="w-3.5 h-3.5 text-teal-600" />
-                    <span>Design Tokens Showcase</span>
-                  </button>
                 </div>
                 <div className="pt-2 border-t border-slate-100">
                   <span className="text-[10px] text-slate-400 block px-1">
@@ -194,4 +184,3 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
     </header>
   );
 };
-
