@@ -6,17 +6,30 @@ import tempfile
 import unittest
 from pathlib import Path
 
+import pdfplumber
+
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPOSITORY_ROOT / "scripts" / "data"))
+import extract_dhcr  # noqa: E402
 import normalize_dhcr  # noqa: E402
 
 
 class DhcrNormalizationTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
-        raw_path = REPOSITORY_ROOT / "data" / "intermediate" / "dhcr_raw.json"
-        cls.raw_records = json.loads(raw_path.read_text(encoding="utf-8"))
+        cls.raw_records = []
+        source_directory = REPOSITORY_ROOT / "data" / "source" / "dhcr"
+        for source_path in sorted(source_directory.glob("*.pdf")):
+            with pdfplumber.open(source_path) as pdf:
+                records, rejected = extract_dhcr.extract_page_rows(
+                    pdf.pages[0],
+                    source_filename=source_path.name,
+                    page_number=1,
+                )
+            if rejected:
+                raise AssertionError(f"Unexpected rejected rows in {source_path.name}: {rejected}")
+            cls.raw_records.extend(records)
         cls.by_id = {record["sourceRecordId"]: record for record in cls.raw_records}
 
     def normalized(self, source_record_id: str) -> dict:
@@ -84,8 +97,10 @@ class DhcrNormalizationTests(unittest.TestCase):
     def test_full_run_retains_every_row_and_reports_shared_parcels(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             temp = Path(temp_dir)
+            raw_path = temp / "raw.json"
+            raw_path.write_text(json.dumps(self.raw_records), encoding="utf-8")
             report = normalize_dhcr.run(
-                REPOSITORY_ROOT / "data" / "intermediate" / "dhcr_raw.json",
+                raw_path,
                 temp / "normalized.json",
                 temp / "report.json",
             )

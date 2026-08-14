@@ -7,19 +7,36 @@ import tempfile
 import unittest
 from pathlib import Path
 
+import pdfplumber
+
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPOSITORY_ROOT / "scripts" / "data"))
+import extract_dhcr  # noqa: E402
 import match_properties  # noqa: E402
+import normalize_dhcr  # noqa: E402
 
 
 class PropertyMatchingTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
-        normalized_path = (
-            REPOSITORY_ROOT / "data" / "intermediate" / "dhcr_normalized.json"
-        )
-        rows = json.loads(normalized_path.read_text(encoding="utf-8"))
+        rows = []
+        source_directory = REPOSITORY_ROOT / "data" / "source" / "dhcr"
+        for filename in (
+            "2024-DHCR-Bldg-File-Bronx.pdf",
+            "2024-DHCR-Bldg-File-Brooklyn.pdf",
+            "2024-DHCR-Bldg-File-Queens.pdf",
+        ):
+            source_path = source_directory / filename
+            with pdfplumber.open(source_path) as pdf:
+                raw_records, rejected = extract_dhcr.extract_page_rows(
+                    pdf.pages[0],
+                    source_filename=source_path.name,
+                    page_number=1,
+                )
+            if rejected:
+                raise AssertionError(f"Unexpected rejected rows in {source_path.name}: {rejected}")
+            rows.extend(normalize_dhcr.normalize_record(record) for record in raw_records)
         cls.by_id = {row["sourceRecordId"]: row for row in rows}
 
     @staticmethod
