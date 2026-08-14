@@ -25,3 +25,6 @@ node_modules/*
 
 # Reproducible, disposable outputs from ingestion and matching jobs.
 data/intermediate/
+
+# Local Vite build output; GitHub Pages should publish it, not commit it.
+dist/
