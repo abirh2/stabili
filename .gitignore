@@ -1,0 +1,17 @@
+.agent/
+.agents/
+.claude/
+.codex/
+.cursor/
+.deepseek/
+.gemini/
+.google/
+.huggingface/
+.openai/
+.perplexity/
+.qwen/
+.sage/
+.spark/
+.vllm/
+.pi/
+AGENTS.md
