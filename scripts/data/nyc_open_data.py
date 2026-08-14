@@ -7,6 +7,7 @@ import hashlib
 import json
 import os
 import random
+import socket
 import time
 from dataclasses import asdict, dataclass, replace
 from datetime import datetime, timezone
@@ -300,7 +301,7 @@ class NycOpenDataClient:
                     f"NYC Open Data request for dataset {dataset_id} failed with HTTP "
                     f"{error.code}{detail}"
                 ) from error
-            except (URLError, TimeoutError) as error:
+            except (URLError, TimeoutError, socket.timeout) as error:
                 if attempt < self.max_retries:
                     self.sleep(self._retry_delay(attempt))
                     continue

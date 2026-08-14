@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import socket
 import sys
 import tempfile
 import unittest
@@ -144,6 +145,23 @@ class NycOpenDataTests(unittest.TestCase):
             ).fetch("abcd-1234", limit=1)
         self.assertEqual(attempts, 2)
         self.assertEqual(delays, [2.0])
+        self.assertEqual(result.records, [{"ok": True}])
+
+    def test_socket_timeout_retries(self) -> None:
+        attempts = 0
+
+        def opener(request, timeout):
+            nonlocal attempts
+            attempts += 1
+            if attempts == 1:
+                raise socket.timeout("read timed out")
+            return FakeResponse([{"ok": True}])
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            result = self.client(
+                Path(temp_dir), opener, max_retries=1, sleep=lambda _: None
+            ).fetch("abcd-1234", limit=1)
+        self.assertEqual(attempts, 2)
         self.assertEqual(result.records, [{"ok": True}])
 
 

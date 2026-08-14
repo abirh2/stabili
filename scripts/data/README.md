@@ -131,3 +131,35 @@ Outputs:
 
 This stage deliberately does not fetch violations, complaints, bedbug reports,
 litigation, or vacate orders, and it does not generate frontend data.
+
+## NYC building-condition enrichment
+
+The condition stage reads `nyc_management_enriched.json` and adds current and
+recent renter-relevant HPD records. It uses only official NYC Open Data:
+
+- `wvxf-dwi5`, Housing Maintenance Code Violations
+- `ygpa-z7cr`, Housing Maintenance Code Complaints and Problems
+- `wz6d-d3jb`, Bedbug Reporting
+- `tb8q-a3ar`, Order to Repair/Vacate Orders
+
+Violation and complaint/problem lookups use bounded Building ID batches and
+narrow field projections through the shared API cache. The stage fetches open
+records plus compact recent windows instead of decades of raw history. The
+small repair/vacate table is fetched once so every active order is represented.
+It retains exact summary counts, limited recent details, source provenance, and
+explicit availability states so a confirmed zero is never confused with a
+failed lookup or a missing bedbug filing.
+
+```bash
+python3 scripts/data/enrich_nyc_conditions.py
+```
+
+Outputs:
+
+- `data/intermediate/nyc_condition_enriched.json` (reproducible working data,
+  gitignored)
+- `data/reports/condition-enrichment-report.json` (dataset coverage, relevant
+  condition cohorts, lookup failures, confirmed zeros, and unavailable data)
+
+This stage does not calculate a health score and does not generate or modify
+frontend data.
