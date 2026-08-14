@@ -1,15 +1,22 @@
 import React, { useEffect, useState } from 'react';
-import { AlertTriangle, Bookmark, BookmarkCheck, Building2, Bug, ClipboardList, ExternalLink, Home, MapPin, ShieldCheck, UserRound, Wind } from 'lucide-react';
 import {
-  Badge,
+  AlertTriangle,
+  Bookmark,
+  BookmarkCheck,
+  Building2,
+  ChevronDown,
+  ExternalLink,
+  Mail,
+  MapPin,
+  ShieldCheck,
+} from 'lucide-react';
+import {
   BuildingDetailsSkeleton,
   BuildingHealthStatus,
   ContactActions,
   EmptyState,
   PageContainer,
   PublicRecordErrorState,
-  SectionHeader,
-  StatItem,
 } from '../components/common';
 import { detailToBuilding, displayBorough, formatAddress } from '../data/adapters';
 import { loadBuilding, loadIndexRecords, managementKey } from '../data/client';
@@ -26,8 +33,17 @@ interface BuildingDetailsPageProps {
   onToggleSave?: () => void;
 }
 
+interface RecordItem {
+  id: string;
+  title: string;
+  description: string | null;
+  meta: string;
+}
+
 const present = (value: unknown): value is string | number => value !== null && value !== undefined && value !== '';
-const dateLabel = (value: string | null) => value ? new Intl.DateTimeFormat('en-US', { dateStyle: 'medium' }).format(new Date(`${value.slice(0, 10)}T00:00:00`)) : null;
+const dateLabel = (value: string | null) => value
+  ? new Intl.DateTimeFormat('en-US', { dateStyle: 'medium' }).format(new Date(`${value.slice(0, 10)}T00:00:00`))
+  : null;
 const countLabel = (value: number | null) => value === null ? 'Unavailable' : value.toLocaleString();
 
 export const BuildingDetailsPage: React.FC<BuildingDetailsPageProps> = ({
@@ -44,11 +60,16 @@ export const BuildingDetailsPage: React.FC<BuildingDetailsPageProps> = ({
   const [error, setError] = useState(false);
 
   const load = () => {
-    setLoading(true); setError(false); setRecord(null); setRelated([]);
+    setLoading(true);
+    setError(false);
+    setRecord(null);
+    setRelated([]);
     loadBuilding(buildingId)
       .then(async (result) => {
         setRecord(result);
-        if (result?.relatedStabiliRecordIds.length) setRelated(await loadIndexRecords(result.relatedStabiliRecordIds));
+        if (result?.relatedStabiliRecordIds.length) {
+          setRelated(await loadIndexRecords(result.relatedStabiliRecordIds));
+        }
       })
       .catch(() => setError(true))
       .finally(() => setLoading(false));
@@ -62,102 +83,234 @@ export const BuildingDetailsPage: React.FC<BuildingDetailsPageProps> = ({
 
   const building = detailToBuilding(record);
   const management = record.management;
+  const managementAddress = formatAddress(management?.businessAddress ?? null);
   const hasBuildingAttributes = record.building && Object.values(record.building).some(present);
   const hasIdentifiers = Object.values(record.identifiers).some(present);
   const hasManagement = Boolean(management && (
     management.managingAgentName || management.managingAgentId || management.registeredOwnerName
-    || management.phone || management.email || management.website || formatAddress(management.businessAddress)
+    || management.phone || management.email || management.website || managementAddress
   ));
   const hasViolations = record.violations.totalCount !== null || Boolean(record.violations.details?.length);
   const hasComplaints = record.complaints.totalCount !== null || Boolean(record.complaints.details?.length);
   const hasVacates = record.vacateOrders.totalCount !== null || Boolean(record.vacateOrders.details?.length);
+  const locationLabel = [displayBorough(record.primaryAddress.borough), record.primaryAddress.zipCode ? `ZIP ${record.primaryAddress.zipCode}` : null].filter(Boolean).join(' · ');
+  const rentalSearch = encodeURIComponent(`${building.address}, ${displayBorough(record.primaryAddress.borough)}, NY ${record.primaryAddress.zipCode ?? ''}`);
+
+  const scrollToManagement = () => document.getElementById('building-management')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
   return (
     <PageContainer
       backAction={{ label: 'Back to Explore', onBack: () => onNavigate('explore') }}
-      headerRight={onToggleSave && <button onClick={onToggleSave} className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-medium ${isSaved ? 'bg-teal-50 border-teal-200 text-teal-800' : 'bg-white border-slate-200 text-slate-600'}`}>{isSaved ? <BookmarkCheck className="w-4 h-4" /> : <Bookmark className="w-4 h-4" />}{isSaved ? 'Saved' : 'Save'}</button>}
+      className="building-detail-page"
     >
-      <div className="space-y-7">
-        <header className="st-card st-card--raised p-5 sm:p-7">
-          <div className="flex flex-wrap items-center gap-2 mb-3">
-            <Badge variant="stabilized">DHCR stabilization record</Badge>
-            {record.propertyMatch.status === 'ambiguous' && <Badge variant="health-fair">Ambiguous property match</Badge>}
+      <article className="building-dossier">
+        <header className="building-hero">
+          <div className="building-hero__identity">
+            <p className="building-record-status"><ShieldCheck aria-hidden="true" /> Listed in a DHCR stabilized-building record</p>
+            <h1 className="building-hero__title">{building.address}</h1>
+            <p className="building-hero__location"><MapPin aria-hidden="true" /> {locationLabel}</p>
+            {record.propertyMatch.status === 'ambiguous' && (
+              <p className="building-match-note"><AlertTriangle aria-hidden="true" /> Property details are a possible match and may require review.</p>
+            )}
           </div>
-          <h1 className="type-page-title">{building.address}</h1>
-          <p className="type-metadata mt-1">{displayBorough(record.primaryAddress.borough)}{record.primaryAddress.zipCode ? ` · ZIP ${record.primaryAddress.zipCode}` : ''}</p>
-          <div className="mt-5 grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <StatItem label="Residential units" value={countLabel(record.building?.residentialUnits ?? null)} />
-            <StatItem label="Year built" value={record.building?.yearBuilt ?? 'Unavailable'} />
-            <StatItem label="Stories" value={record.building?.stories ?? 'Unavailable'} />
-            <StatItem label="Open violations" value={countLabel(record.violations.openCount)} />
+
+          <div className="building-actions" aria-label="Building actions">
+            <button type="button" onClick={scrollToManagement} className="st-button st-button--primary">
+              <Mail className="h-4 w-4" aria-hidden="true" /> Contact management
+            </button>
+            {onToggleSave && (
+              <button type="button" onClick={onToggleSave} aria-pressed={isSaved} className="st-button st-button--secondary">
+                {isSaved ? <BookmarkCheck className="h-4 w-4" aria-hidden="true" /> : <Bookmark className="h-4 w-4" aria-hidden="true" />}
+                {isSaved ? 'Saved' : 'Save'}
+              </button>
+            )}
+            <details className="rental-sites-menu">
+              <summary className="st-button st-button--ghost">Rental sites <ChevronDown className="h-4 w-4" aria-hidden="true" /></summary>
+              <div className="rental-sites-menu__panel">
+                <p>Search this address on a rental site. Listings do not confirm stabilization.</p>
+                <a href={`https://streeteasy.com/for-rent/nyc?search=${rentalSearch}`} target="_blank" rel="noreferrer">StreetEasy <ExternalLink aria-hidden="true" /></a>
+                <a href={`https://www.zillow.com/homes/${rentalSearch}_rb/`} target="_blank" rel="noreferrer">Zillow <ExternalLink aria-hidden="true" /></a>
+              </div>
+            </details>
           </div>
-          <div className="mt-4"><BuildingHealthStatus health={building.health} variant="card" showDescription /></div>
+
+          <dl className="building-overview" aria-label="Building overview">
+            <Fact label="Units" value={countLabel(record.building?.residentialUnits ?? null)} />
+            <Fact label="Year built" value={record.building?.yearBuilt ?? 'Unavailable'} />
+            <Fact label="Stories" value={record.building?.stories ?? 'Unavailable'} />
+            <Fact label="Ownership" value={record.building?.ownershipType ?? 'Unavailable'} />
+          </dl>
+
+          {(record.classifications.length > 0 || present(record.building?.buildingClass)) && (
+            <p className="building-classifications">
+              {[record.building?.buildingClass, ...record.classifications].filter(present).join(' · ')}
+            </p>
+          )}
         </header>
 
-        <section className="st-card st-card--raised p-5 sm:p-6">
-          <SectionHeader title="Building location" subtitle="Location supplied by the generated public-record data." icon={<MapPin className="w-4 h-4" />} />
+        <section className="building-health-section" aria-labelledby="building-health-title">
+          <div>
+            <h2 id="building-health-title">Building health</h2>
+            <p>Stabili’s interpretation of available municipal records—not an agency rating.</p>
+          </div>
+          <BuildingHealthStatus health={building.health} variant="inline" className="building-health-section__status" />
+          {record.health.explanation && <p className="building-health-section__explanation">{record.health.explanation}</p>}
+        </section>
+
+        <section id="building-management" className="building-section building-management" aria-labelledby="management-title">
+          <div className="building-section__heading">
+            <div>
+              <h2 id="management-title">Management</h2>
+              <p>Contact information from the matched public building record.</p>
+            </div>
+            {management?.managingAgentName && (
+              <button type="button" onClick={() => onSelectManagement(managementKey(management.managingAgentName!))} className="st-button st-button--ghost st-button--sm">
+                Associated records
+              </button>
+            )}
+          </div>
+
+          {hasManagement ? (
+            <div className="management-layout">
+              <dl className="management-identity">
+                <Fact label="Managing agent" value={management?.managingAgentName ?? 'Unavailable'} detail={management?.managingAgentId ? `HPD registration ID ${management.managingAgentId}` : undefined} />
+                <Fact label="Registered owner" value={management?.registeredOwnerName ?? 'Unavailable'} />
+                <Fact label="Business address" value={managementAddress ?? 'Unavailable'} />
+              </dl>
+              <ContactActions
+                variant="rows"
+                phone={management?.phone}
+                email={management?.email}
+                website={management?.website}
+                businessMailingAddress={managementAddress}
+                subject={`Question about ${building.address}`}
+              />
+            </div>
+          ) : (
+            <p className="building-empty-note">Management contact information was not available in this public record.</p>
+          )}
+        </section>
+
+        <section className="building-section" aria-labelledby="official-records-title">
+          <div className="building-section__heading">
+            <div>
+              <h2 id="official-records-title">Official records</h2>
+              <p>Agency reports associated with this building match.</p>
+            </div>
+          </div>
+
+          <div className="record-groups">
+            {hasViolations && <RecordSection title="Violations" summary={`${countLabel(record.violations.openCount)} open · ${countLabel(record.violations.totalCount)} total`} items={record.violations.details?.map((item) => ({ id: item.id, title: [item.class && `Class ${item.class}`, item.status].filter(Boolean).join(' · ') || 'Violation', description: item.description, meta: [item.sourceAgency, dateLabel(item.issuedAt), item.location].filter(Boolean).join(' · ') })) ?? []} />}
+            {hasComplaints && <RecordSection title="Complaints" summary={`${countLabel(record.complaints.openCount)} open · ${countLabel(record.complaints.totalCount)} total`} items={record.complaints.details?.map((item) => ({ id: item.id, title: [item.category, item.status].filter(Boolean).join(' · ') || 'Complaint', description: item.description, meta: [item.sourceAgency, dateLabel(item.receivedAt)].filter(Boolean).join(' · ') })) ?? []} />}
+            {hasVacates && <RecordSection title="Vacate orders" summary={`${countLabel(record.vacateOrders.activeCount)} active · ${countLabel(record.vacateOrders.totalCount)} total`} items={record.vacateOrders.details?.map((item) => ({ id: item.id, title: item.status ?? 'Vacate order', description: item.description, meta: [item.sourceAgency, dateLabel(item.issuedAt)].filter(Boolean).join(' · ') })) ?? []} />}
+            {record.bedbugHistory?.length ? (
+              <details className="record-disclosure">
+                <summary><span><strong>Bedbug history</strong><small>{record.bedbugHistory.length} reporting {record.bedbugHistory.length === 1 ? 'period' : 'periods'}</small></span><ChevronDown aria-hidden="true" /></summary>
+                <dl className="bedbug-history">
+                  {record.bedbugHistory.map((entry) => (
+                    <div key={entry.reportingPeriod}>
+                      <dt>{entry.reportingPeriod}</dt>
+                      <dd>{entry.infestationCount ?? 'Unavailable'} infestations · {entry.eradicationCount ?? 'Unavailable'} eradications · {entry.reinfestationCount ?? 'Unavailable'} reinfestations</dd>
+                      <dd>{entry.filingStatus ?? 'Status unavailable'}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </details>
+            ) : null}
+          </div>
+        </section>
+
+        <section className="building-section building-location" aria-labelledby="location-title">
+          <div className="building-section__heading">
+            <div>
+              <h2 id="location-title">Location</h2>
+              <p>Coordinates supplied by the generated public-record data.</p>
+            </div>
+          </div>
           <BuildingLocationMap building={building} />
         </section>
 
-        <section className="st-card st-card--raised p-5 sm:p-6">
-          <SectionHeader title="Stabilization source" icon={<ShieldCheck className="w-4 h-4" />} />
-          <p className="text-sm font-medium text-slate-900">{record.stabilizationStatus ?? 'Stabilization status unavailable'}</p>
-          <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 mt-4 text-xs">
-            <div><dt className="text-slate-400 uppercase tracking-wider">Agency</dt><dd className="text-slate-800 mt-0.5">{record.source.agency}</dd></div>
-            <div><dt className="text-slate-400 uppercase tracking-wider">Dataset</dt><dd className="text-slate-800 mt-0.5">{record.source.datasetName}</dd></div>
-            {record.source.sourceYear !== null && <div><dt className="text-slate-400 uppercase tracking-wider">Source year</dt><dd className="text-slate-800 mt-0.5">{record.source.sourceYear}</dd></div>}
-            {record.source.sourceFile && <div><dt className="text-slate-400 uppercase tracking-wider">Source location</dt><dd className="text-slate-800 mt-0.5">{record.source.sourceFile}{record.source.sourcePage ? `, page ${record.source.sourcePage}` : ''}</dd></div>}
-          </dl>
-          {record.source.sourceUrl && <a href={record.source.sourceUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 mt-4 text-xs font-medium text-teal-700">Open official source <ExternalLink className="w-3 h-3" /></a>}
-        </section>
+        {related.length > 0 && (
+          <section className="building-section" aria-labelledby="related-title">
+            <div className="building-section__heading"><div><h2 id="related-title">Related Stabili records</h2><p>Other records linked by the generated dataset.</p></div></div>
+            <div className="related-records">
+              {related.map((item) => (
+                <button key={item.id} type="button" onClick={() => onSelectBuilding(item.id)}>
+                  <span>{item.address ?? 'Address unavailable'}</span>
+                  <small>{displayBorough(item.borough)}{item.zipCode ? ` · ${item.zipCode}` : ''}</small>
+                </button>
+              ))}
+            </div>
+          </section>
+        )}
 
-        {(record.classifications.length > 0 || hasBuildingAttributes || hasIdentifiers) && <section className="st-card st-card--raised p-5 sm:p-6">
-          <SectionHeader title="Official classifications and building attributes" icon={<Home className="w-4 h-4" />} />
-          {record.classifications.length > 0 && <div className="flex flex-wrap gap-2 mb-5">{record.classifications.map((classification) => <Badge key={classification} variant="neutral">{classification}</Badge>)}</div>}
-          {hasBuildingAttributes && <dl className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-            {present(record.building?.buildingClass) && <StatItem label="Building class" value={record.building?.buildingClass} />}
-            {present(record.building?.totalUnits) && <StatItem label="Total units" value={record.building?.totalUnits} />}
-            {present(record.building?.ownershipType) && <StatItem label="Ownership type" value={record.building?.ownershipType} valueClassName="text-sm" />}
-          </dl>}
-          {hasIdentifiers && <dl className="grid grid-cols-2 sm:grid-cols-5 gap-3 mt-4 text-xs">
-            {Object.entries({ BBL: record.identifiers.bbl, BIN: record.identifiers.bin, Block: record.identifiers.block, Lot: record.identifiers.lot, 'HPD building ID': record.identifiers.hpdBuildingId }).filter(([, value]) => present(value)).map(([label, value]) => <div key={label} className="p-3 bg-slate-50 rounded-xl"><dt className="text-slate-400">{label}</dt><dd className="font-mono text-slate-800 mt-0.5">{value}</dd></div>)}
-          </dl>}
-        </section>}
-
-        {hasManagement && <section className="st-card st-card--raised p-5 sm:p-6">
-          <SectionHeader title="Owner and managing agent" icon={<UserRound className="w-4 h-4" />} action={management?.managingAgentName ? <button onClick={() => onSelectManagement(managementKey(management.managingAgentName!))} className="text-xs font-medium text-teal-700 hover:text-teal-900">View associated records</button> : undefined} />
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-            {management?.managingAgentName && <div className="p-4 bg-slate-50 rounded-xl"><span className="text-[10px] text-slate-400 uppercase tracking-wider">Managing agent</span><p className="text-sm font-semibold text-slate-900 mt-1">{management.managingAgentName}</p>{management.managingAgentId && <p className="text-xs text-slate-500 mt-0.5">HPD registration ID {management.managingAgentId}</p>}</div>}
-            {management?.registeredOwnerName && <div className="p-4 bg-slate-50 rounded-xl"><span className="text-[10px] text-slate-400 uppercase tracking-wider">Registered owner</span><p className="text-sm font-semibold text-slate-900 mt-1">{management.registeredOwnerName}</p></div>}
+        <details className="source-details">
+          <summary><span>Source data and identifiers</span><ChevronDown aria-hidden="true" /></summary>
+          <div className="source-details__content">
+            <div>
+              <h2>Stabilization source</h2>
+              <p className="source-details__status">{record.stabilizationStatus ?? 'Stabilization status unavailable'}</p>
+              <dl className="metadata-grid">
+                <Fact label="Agency" value={record.source.agency} />
+                <Fact label="Dataset" value={record.source.datasetName} />
+                {record.source.sourceYear !== null && <Fact label="Source year" value={record.source.sourceYear} />}
+                {record.source.sourceFile && <Fact label="Source location" value={`${record.source.sourceFile}${record.source.sourcePage ? `, page ${record.source.sourcePage}` : ''}`} />}
+                {record.propertyMatch.method && <Fact label="Property match" value={record.propertyMatch.method} />}
+                {record.propertyMatch.reviewNote && <Fact label="Match note" value={record.propertyMatch.reviewNote} />}
+              </dl>
+              {record.source.sourceUrl && <a href={record.source.sourceUrl} target="_blank" rel="noreferrer" className="source-link">Open official source <ExternalLink aria-hidden="true" /></a>}
+            </div>
+            {(hasIdentifiers || hasBuildingAttributes) && (
+              <div>
+                <h2>Identifiers and attributes</h2>
+                <dl className="metadata-grid metadata-grid--identifiers">
+                  {Object.entries({ BBL: record.identifiers.bbl, BIN: record.identifiers.bin, Block: record.identifiers.block, Lot: record.identifiers.lot, 'HPD building ID': record.identifiers.hpdBuildingId }).filter(([, value]) => present(value)).map(([label, value]) => <Fact key={label} label={label} value={value as string | number} mono />)}
+                  {present(record.building?.buildingClass) && <Fact label="Building class" value={record.building?.buildingClass} />}
+                  {present(record.building?.totalUnits) && <Fact label="Total units" value={record.building?.totalUnits} />}
+                </dl>
+              </div>
+            )}
           </div>
-          <ContactActions variant="pills" phone={management?.phone} email={management?.email} website={management?.website} businessMailingAddress={formatAddress(management?.businessAddress ?? null)} />
-        </section>}
+        </details>
 
-        {hasViolations && <RecordSection title="Current and recent violations" icon={<AlertTriangle className="w-4 h-4" />} summary={`${countLabel(record.violations.openCount)} open · ${countLabel(record.violations.totalCount)} total`} items={record.violations.details?.map((item) => ({ id: item.id, title: [item.class && `Class ${item.class}`, item.status].filter(Boolean).join(' · ') || 'Violation', description: item.description, meta: [item.sourceAgency, dateLabel(item.issuedAt), item.location].filter(Boolean).join(' · ') })) ?? []} />}
-        {hasComplaints && <RecordSection title="Complaints" icon={<ClipboardList className="w-4 h-4" />} summary={`${countLabel(record.complaints.openCount)} open · ${countLabel(record.complaints.totalCount)} total`} items={record.complaints.details?.map((item) => ({ id: item.id, title: [item.category, item.status].filter(Boolean).join(' · ') || 'Complaint', description: item.description, meta: [item.sourceAgency, dateLabel(item.receivedAt)].filter(Boolean).join(' · ') })) ?? []} />}
+        <footer className="building-record-footer">
+          Stabili ID {record.id}{record.freshness.generatedAt ? ` · Generated ${dateLabel(record.freshness.generatedAt)}` : ''}
+        </footer>
+      </article>
 
-        {record.bedbugHistory?.length ? <section className="st-card st-card--raised p-5 sm:p-6">
-          <SectionHeader title="Bedbug history" icon={<Bug className="w-4 h-4" />} />
-          <div className="overflow-x-auto"><table className="w-full text-xs"><thead className="text-left text-slate-400 border-b"><tr><th className="py-2">Reporting period</th><th>Infestations</th><th>Eradications</th><th>Reinfestations</th><th>Status</th></tr></thead><tbody>{record.bedbugHistory.map((entry) => <tr key={entry.reportingPeriod} className="border-b border-slate-100"><td className="py-3 font-medium">{entry.reportingPeriod}</td><td>{entry.infestationCount ?? 'Unavailable'}</td><td>{entry.eradicationCount ?? 'Unavailable'}</td><td>{entry.reinfestationCount ?? 'Unavailable'}</td><td>{entry.filingStatus ?? 'Unavailable'}</td></tr>)}</tbody></table></div>
-        </section> : null}
-
-        {hasVacates && <RecordSection title="Vacate information" icon={<Wind className="w-4 h-4" />} summary={`${countLabel(record.vacateOrders.activeCount)} active · ${countLabel(record.vacateOrders.totalCount)} total`} items={record.vacateOrders.details?.map((item) => ({ id: item.id, title: item.status ?? 'Vacate order', description: item.description, meta: [item.sourceAgency, dateLabel(item.issuedAt)].filter(Boolean).join(' · ') })) ?? []} />}
-
-        {related.length > 0 && <section className="st-card st-card--raised p-5 sm:p-6">
-          <SectionHeader title="Related Stabili records" subtitle="Relationships supplied by the generated dataset." icon={<Building2 className="w-4 h-4" />} />
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">{related.map((item) => <button key={item.id} onClick={() => onSelectBuilding(item.id)} className="p-4 text-left bg-slate-50 hover:bg-slate-100 rounded-xl border border-slate-200"><span className="text-sm font-semibold text-slate-900">{item.address ?? 'Address unavailable'}</span><span className="text-xs text-slate-500 block mt-1">{displayBorough(item.borough)}{item.zipCode ? ` · ${item.zipCode}` : ''}</span></button>)}</div>
-        </section>}
-
-        <p className="text-[11px] text-slate-400 text-center">Stabili ID {record.id}{record.freshness.generatedAt ? ` · Generated ${dateLabel(record.freshness.generatedAt)}` : ''}</p>
+      <div className="building-mobile-actions" aria-label="Building actions">
+        <button type="button" onClick={scrollToManagement} className="st-button st-button--primary"><Mail className="h-4 w-4" aria-hidden="true" /> Contact</button>
+        {onToggleSave && <button type="button" onClick={onToggleSave} aria-pressed={isSaved} className="st-button st-button--secondary">{isSaved ? <BookmarkCheck className="h-4 w-4" aria-hidden="true" /> : <Bookmark className="h-4 w-4" aria-hidden="true" />}{isSaved ? 'Saved' : 'Save'}</button>}
       </div>
     </PageContainer>
   );
 };
 
-interface RecordItem { id: string; title: string; description: string | null; meta: string; }
-const RecordSection: React.FC<{ title: string; icon: React.ReactNode; summary: string; items: RecordItem[] }> = ({ title, icon, summary, items }) => (
-  <section className="st-card st-card--raised p-5 sm:p-6">
-    <SectionHeader title={title} icon={icon} badge={<Badge variant="neutral">{summary}</Badge>} />
-    {items.length > 0 ? <div className="space-y-3">{items.map((item) => <article key={item.id} className="p-4 bg-slate-50/80 rounded-xl border border-slate-100"><h3 className="text-sm font-semibold text-slate-900">{item.title}</h3>{item.meta && <p className="text-[11px] text-slate-400 mt-0.5">{item.meta}</p>}{item.description && <p className="text-xs text-slate-600 leading-relaxed mt-2">{item.description}</p>}</article>)}</div> : <p className="text-xs text-slate-500">Detailed records are unavailable in the generated dataset.</p>}
-  </section>
+const Fact: React.FC<{ label: string; value: React.ReactNode; detail?: string; mono?: boolean }> = ({ label, value, detail, mono = false }) => (
+  <div className="building-fact">
+    <dt>{label}</dt>
+    <dd className={mono ? 'building-fact__mono' : undefined}>{value}</dd>
+    {detail && <dd className="building-fact__detail">{detail}</dd>}
+  </div>
+);
+
+const RecordSection: React.FC<{ title: string; summary: string; items: RecordItem[] }> = ({ title, summary, items }) => (
+  <details className="record-disclosure">
+    <summary>
+      <span><strong>{title}</strong><small>{summary}</small></span>
+      <ChevronDown aria-hidden="true" />
+    </summary>
+    <div className="record-list">
+      {items.length > 0 ? items.map((item) => (
+        <article key={item.id} className="record-row">
+          <span className="record-row__marker" aria-hidden="true" />
+          <div>
+            <h3>{item.title}</h3>
+            {item.meta && <p className="record-row__meta">{item.meta}</p>}
+            {item.description && <p className="record-row__description">{item.description}</p>}
+          </div>
+        </article>
+      )) : <p className="building-empty-note">Detailed records are unavailable in the generated dataset.</p>}
+    </div>
+  </details>
 );
