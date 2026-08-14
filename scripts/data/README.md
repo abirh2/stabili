@@ -101,3 +101,33 @@ Outputs:
 Use `--refresh-cache` only when intentionally replacing the local NYC API
 snapshot. This stage does not fetch violations, complaints, registrations,
 contacts, or any other HPD enrichment.
+
+## NYC building and management enrichment
+
+The first enrichment stage reads `property_matches.json` and adds only compact
+building attributes, the latest Multiple Dwelling Registration, and useful
+contacts from that registration. It uses these official NYC Open Data datasets:
+
+- `kj4p-ruqc`, Buildings Subject to HPD Jurisdiction
+- `64uk-42ks`, Primary Land Use Tax Lot Output (PLUTO)
+- `tesw-yqqr`, Multiple Dwelling Registrations
+- `feu5-w2e2`, HPD Registration Contacts
+
+Each source is fetched with an explicit narrow field projection through the
+existing cached Socrata client. Contacts retain official roles and names;
+normalization only handles casing and punctuation. Phone, email, and website are
+explicitly null because the official contacts dataset does not provide them.
+
+```bash
+python3 scripts/data/enrich_nyc_management.py
+```
+
+Outputs:
+
+- `data/intermediate/nyc_management_enriched.json` (reproducible working data,
+  gitignored)
+- `data/reports/management-enrichment-report.json` (building-level coverage,
+  unresolved registrations, and normalized duplicate names)
+
+This stage deliberately does not fetch violations, complaints, bedbug reports,
+litigation, or vacate orders, and it does not generate frontend data.
