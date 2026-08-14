@@ -44,3 +44,26 @@ Outputs:
 
 - `data/intermediate/dhcr_normalized.json` (reproducible working data, gitignored)
 - `data/reports/dhcr-normalization-report.json` (committed validation summary)
+
+## NYC Open Data client
+
+`nyc_open_data.py` is the reusable build-time Socrata client for future NYC
+enrichment stages. It supports SoQL selection/filtering/ordering, pagination,
+retry and rate-limit handling, provenance, and a disposable local cache at
+`data/intermediate/api-cache/`. It is not imported by the frontend and does not
+perform property matching on its own.
+
+Put `NYC_OPEN_DATA_APP_TOKEN` in the repository-root `.env` (see
+`.env.example`). Network requests fail clearly when it is missing. Cached
+responses can be bypassed per client/command or by setting
+`NYC_OPEN_DATA_CACHE_REFRESH=1`.
+
+Run the small connectivity diagnostic with:
+
+```bash
+python3 scripts/data/diagnose_nyc_open_data.py
+python3 scripts/data/diagnose_nyc_open_data.py --refresh-cache
+```
+
+The diagnostic prints only success, dataset ID, and record count; it never
+prints the application token.
