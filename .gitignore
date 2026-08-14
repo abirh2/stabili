@@ -16,3 +16,12 @@
 .pi/
 AGENTS.md
 graphify-out/*
+node_modules/*
+
+# Local secrets. Commit only the documented template.
+.env
+.env.*
+!.env.example
+
+# Reproducible, disposable outputs from ingestion and matching jobs.
+data/intermediate/
