@@ -3,15 +3,11 @@ import {
   AlertTriangle,
   Bookmark,
   BookmarkCheck,
-  Building,
   CheckCircle2,
   HelpCircle,
-  Layers,
-  Phone,
   ShieldCheck,
 } from 'lucide-react';
 import { BuildingRecord } from '../../types';
-import { BuildingHealthBadge } from '../common/Badge';
 import { AmbiguousRecordBadge } from '../common/AmbiguousRecordBadge';
 
 export interface BuildingCardProps {
@@ -31,13 +27,8 @@ export const BuildingCard: React.FC<BuildingCardProps> = ({
   onToggleSave,
   onHover,
 }) => {
-  const hasContact = Boolean(building.phone || building.website || building.email);
   const secondaryAddressText = building.secondaryAddress || building.alternateAddresses?.[0];
-  const isComplex = Boolean(building.complexType || building.isGardenComplex || building.complexName);
-  const complexLabel = building.complexType || (building.isGardenComplex ? 'Garden complex' : 'Multi-building property');
-  const unitsText = building.units != null ? `${building.units} units` : 'Units unavailable';
-  const yearBuiltText = building.yearBuilt != null ? String(building.yearBuilt) : 'Unavailable';
-  const storiesText = building.stories != null ? String(building.stories) : 'Unavailable';
+  const unitsText = building.units != null ? building.units.toLocaleString() : 'Unavailable';
   const locationText = [building.neighborhood, building.borough]
     .filter((value, index, values) => Boolean(value) && values.findIndex((candidate) => candidate?.toLocaleLowerCase() === value?.toLocaleLowerCase()) === index)
     .join(' · ');
@@ -55,6 +46,18 @@ export const BuildingCard: React.FC<BuildingCardProps> = ({
     managementContext = 'Mailing address only';
   }
 
+  const healthLabel = building.health === 'Good'
+    ? 'Low concern'
+    : building.health === 'Fair'
+      ? 'Some concerns'
+      : building.health === 'Needs Attention'
+        ? 'Higher concern'
+        : 'Not enough data';
+  const healthTone = building.health === 'Good' ? 'positive' : building.health === 'Fair' ? 'caution' : building.health === 'Needs Attention' ? 'negative' : 'neutral';
+  const recentCondition = building.openViolationsCount == null
+    ? 'Recent violation data unavailable'
+    : `${building.openViolationsCount.toLocaleString()} open ${building.openViolationsCount === 1 ? 'violation' : 'violations'}`;
+
   return (
     <article
       id={`building-card-${building.id}`}
@@ -65,20 +68,20 @@ export const BuildingCard: React.FC<BuildingCardProps> = ({
       onBlurCapture={(event) => {
         if (!event.currentTarget.contains(event.relatedTarget as Node | null)) onHover?.(null);
       }}
-      className="st-card st-card--interactive group relative flex flex-col p-4 sm:p-5"
+      className="building-result group relative"
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
-          <p className="type-caption">
-            {locationText}{building.zipCode ? ` · ZIP ${building.zipCode}` : ''}
-          </p>
           <button
             type="button"
             onClick={() => onSelect(building.id)}
-            className="type-building-title mt-1 block cursor-pointer text-left text-primary transition-colors group-hover:text-accent"
+            className="building-result__address block cursor-pointer text-left text-primary transition-colors group-hover:text-accent"
           >
             {building.address}
           </button>
+          <p className="type-metadata mt-0.5">
+            {locationText}{building.zipCode ? ` · ${building.zipCode}` : ''}
+          </p>
           {secondaryAddressText && (
             <p className="type-metadata mt-1 line-clamp-1">
               Also associated with <span className="font-medium text-primary">{secondaryAddressText}</span>
@@ -91,7 +94,7 @@ export const BuildingCard: React.FC<BuildingCardProps> = ({
           id={`save-btn-${building.id}`}
           type="button"
           onClick={() => onToggleSave(building.id)}
-          className={`st-button st-button--pill !w-11 !p-0 ${isSaved ? 'st-button--subtle-teal' : 'st-button--ghost'}`}
+          className={`st-button st-button--pill !min-h-10 !w-10 !p-0 ${isSaved ? 'st-button--subtle-teal' : 'st-button--ghost'}`}
           aria-pressed={isSaved}
           aria-label={isSaved ? 'Remove building from saved' : 'Save building'}
         >
@@ -99,62 +102,43 @@ export const BuildingCard: React.FC<BuildingCardProps> = ({
         </button>
       </div>
 
-      {building.isAmbiguousMatch && (
-        <div className="mt-3"><AmbiguousRecordBadge reviewNote={building.matchReviewNote} /></div>
-      )}
-
-      <div className="mt-3 flex flex-wrap items-center gap-2">
-        <span className="st-badge st-badge--positive"><ShieldCheck className="h-3.5 w-3.5" />DHCR record</span>
-        {isComplex && <span className="st-badge st-badge--neutral" title={building.complexName || complexLabel}><Layers className="h-3.5 w-3.5" />{complexLabel}</span>}
-        <span className="type-metadata inline-flex items-center gap-1"><Building className="h-3.5 w-3.5" />{unitsText}</span>
-      </div>
-
-      {isComplex && building.complexName && (
-        <p className="type-metadata mt-2">Part of <span className="font-medium text-primary">{building.complexName}</span></p>
-      )}
-
-      <dl className="separator mt-4 grid grid-cols-3 divide-x border-y py-3">
-        <div className="px-2 first:pl-0">
-          <dt className="type-caption">Built</dt>
-          <dd className="type-label mt-0.5 text-primary tabular-nums">{yearBuiltText}</dd>
+      <dl className="building-result__facts">
+        <div>
+          <dt>Stabilization record</dt>
+          <dd><ShieldCheck className="h-3.5 w-3.5 text-[var(--st-positive)]" />DHCR registered</dd>
         </div>
-        <div className="separator px-3">
-          <dt className="type-caption">Stories</dt>
-          <dd className="type-label mt-0.5 text-primary tabular-nums">{storiesText}</dd>
+        <div>
+          <dt>Units</dt>
+          <dd className="tabular-nums">{unitsText}</dd>
         </div>
-        <div className="separator px-3 pr-0">
-          <dt className="type-caption">Contact</dt>
-          <dd className="type-label mt-0.5 inline-flex items-center gap-1 text-primary">
-            {hasContact && <Phone className="h-3 w-3 text-accent" />}{hasContact ? 'Listed' : 'Unlisted'}
-          </dd>
+        <div>
+          <dt>Management</dt>
+          <dd className="truncate" title={managementTitle}>{managementContext}</dd>
         </div>
       </dl>
 
-      <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
-        <div className="flex items-center gap-2">
-          <span className="type-caption">Stabili summary</span>
-          <BuildingHealthBadge health={building.health} size="sm" />
+      <div className="building-result__condition">
+        <div>
+          <span className="type-caption">Building health</span>
+          <p className={`building-health building-health--${healthTone}`}>{healthLabel}</p>
         </div>
-        <div className="type-metadata flex items-center gap-1.5">
+        <div className="min-w-0 text-right">
+          <span className="type-caption">Recent condition summary</span>
+          <p className="type-metadata mt-0.5 flex items-center justify-end gap-1.5 text-primary">
           {building.openViolationsCount == null ? (
-            <><HelpCircle className="h-3.5 w-3.5" /><span>Violations unavailable</span></>
+            <HelpCircle className="h-3.5 w-3.5 shrink-0" />
           ) : building.openViolationsCount > 0 ? (
-            <><AlertTriangle className="h-3.5 w-3.5 text-[var(--st-caution)]" /><span>{building.openViolationsCount} open</span></>
+            <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-[var(--st-caution)]" />
           ) : (
-            <><CheckCircle2 className="h-3.5 w-3.5 text-[var(--st-positive)]" /><span>0 open</span></>
+            <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-[var(--st-positive)]" />
           )}
-          {building.complaints311Count != null && <span>· {building.complaints311Count} 311 {building.complaints311Count === 1 ? 'report' : 'reports'}</span>}
+          <span>{recentCondition}{building.complaints311Count != null && ` · ${building.complaints311Count} recent 311 ${building.complaints311Count === 1 ? 'report' : 'reports'}`}</span>
+          </p>
         </div>
       </div>
 
-      <div className="separator mt-4 border-t pt-3">
-        <div className="flex items-baseline justify-between gap-3">
-          <div className="min-w-0">
-            <p className="type-caption">Management record · {managementContext}</p>
-            <p className="type-metadata mt-0.5 truncate font-medium text-primary" title={managementTitle}>{managementTitle}</p>
-          </div>
-        </div>
-      </div>
+      <p className="type-metadata mt-3 truncate" title={managementTitle}><span className="text-tertiary">Management record</span> · <span className="font-medium text-primary">{managementTitle}</span></p>
+      {building.isAmbiguousMatch && <div className="mt-3"><AmbiguousRecordBadge reviewNote={building.matchReviewNote} /></div>}
     </article>
   );
 };

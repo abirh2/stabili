@@ -5,10 +5,10 @@ import { MapContainer, Marker, Popup, TileLayer, useMap } from 'react-leaflet';
 import type { BuildingRecord } from '../../types';
 import {
   buildingMarkerIcon,
+  EXPLORE_TILE_ATTRIBUTION,
+  EXPLORE_TILE_URL,
   hasValidCoordinates,
   type MappableBuilding,
-  OSM_ATTRIBUTION,
-  OSM_TILE_URL,
 } from '../maps/leaflet';
 
 interface ExploreMapProps {
@@ -68,7 +68,7 @@ const BuildingMarker: React.FC<BuildingMarkerProps> = React.memo(({
     <Marker position={[building.latitude, building.longitude]} icon={icon} eventHandlers={eventHandlers}>
       <Popup minWidth={220} maxWidth={280}>
         <div className="min-w-0">
-          <span className="block text-[10px] font-medium uppercase tracking-wider text-slate-400">{building.neighborhood} · {building.borough}</span>
+          <span className="type-caption block">{building.neighborhood} · {building.borough}</span>
           <strong className="mt-0.5 block break-words text-sm text-slate-900">{building.address}</strong>
           <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-slate-500">
             <span className="inline-flex items-center gap-1 font-medium text-emerald-800">
@@ -111,9 +111,16 @@ export const ExploreMap: React.FC<ExploreMapProps> = React.memo(({
   }, [mappableBuildings, selectedBuildingId]);
 
   return (
-    <div className="stabili-leaflet-frame relative h-full min-h-[460px] w-full bg-slate-100">
-      <MapContainer center={NYC_CENTER} zoom={10} scrollWheelZoom className="h-full w-full" aria-label="Map of filtered Stabili building records">
-        <TileLayer attribution={OSM_ATTRIBUTION} url={OSM_TILE_URL} />
+    <div className="stabili-leaflet-frame relative flex h-full min-h-[460px] w-full flex-col bg-slate-100">
+      <header className="separator flex min-h-14 items-center justify-between gap-3 border-b bg-[var(--st-surface-elevated)] px-4">
+        <div className="flex min-w-0 items-center gap-2">
+          <MapPin className="h-4 w-4 shrink-0 text-accent" aria-hidden="true" />
+          <span className="type-label truncate text-primary">Map results</span>
+        </div>
+        <span className="type-metadata shrink-0 tabular-nums">{mappableBuildings.length.toLocaleString()} mapped</span>
+      </header>
+      <MapContainer center={NYC_CENTER} zoom={10} scrollWheelZoom className="min-h-0 w-full flex-1" aria-label="Map of filtered Stabili building records">
+        <TileLayer attribution={EXPLORE_TILE_ATTRIBUTION} url={EXPLORE_TILE_URL} maxZoom={20} />
         <MapViewport positions={positions} />
         {mappableBuildings.map((building) => (
           <BuildingMarker
@@ -126,12 +133,6 @@ export const ExploreMap: React.FC<ExploreMapProps> = React.memo(({
           />
         ))}
       </MapContainer>
-
-      <div className="pointer-events-none absolute left-16 top-3 z-[500] flex max-w-[calc(100%-5rem)] items-center gap-2 rounded-xl bg-white/95 px-3 py-2 text-xs text-slate-700 shadow-sm ring-1 ring-slate-200/80">
-        <MapPin className="h-3.5 w-3.5 shrink-0 text-teal-700" aria-hidden="true" />
-        <span className="truncate font-medium">Filtered buildings</span>
-        <span className="shrink-0 tabular-nums text-slate-500">{mappableBuildings.length.toLocaleString()} mapped</span>
-      </div>
 
       {mappableBuildings.length === 0 && (
         <div className="pointer-events-none absolute inset-x-4 top-1/2 z-[500] -translate-y-1/2 rounded-2xl bg-white/95 p-5 text-center shadow-sm ring-1 ring-slate-200/80">
