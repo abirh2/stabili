@@ -31,9 +31,9 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   id = 'stabili-search-bar',
 }) => {
   const sizeStyles = {
-    sm: 'h-9 text-xs pl-8 pr-8 rounded-xl',
-    md: 'h-10 text-xs sm:text-sm pl-9 pr-9 rounded-xl',
-    lg: 'h-12 text-sm sm:text-base pl-11 pr-11 rounded-2xl',
+    sm: 'h-9 text-xs pl-8 pr-8',
+    md: 'h-10 text-sm pl-9 pr-9',
+    lg: 'h-12 text-base pl-11 pr-11',
   }[size];
 
   const iconSizes = {
@@ -59,7 +59,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
       onClick={onClick}
     >
       <Search
-        className={`absolute ${iconSizes} top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none`}
+        className={`absolute ${iconSizes} top-1/2 -translate-y-1/2 text-tertiary pointer-events-none`}
       />
 
       <input
@@ -70,7 +70,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
         placeholder={placeholder}
         readOnly={readOnly}
         autoFocus={autoFocus}
-        className={`w-full bg-white border border-slate-200/80 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-teal-700/60 focus:border-teal-700/60 shadow-2xs transition-all ${
+        className={`st-input ${
           readOnly ? 'cursor-pointer select-none' : ''
         } ${sizeStyles}`}
       />
@@ -79,15 +79,16 @@ export const SearchBar: React.FC<SearchBarProps> = ({
         <button
           type="button"
           onClick={handleClear}
-          className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600 rounded-md cursor-pointer transition-colors"
+          className="absolute right-2 top-1/2 -translate-y-1/2 st-button st-button--ghost !min-h-8 !w-8 !p-0"
+          aria-label="Clear search"
           title="Clear search"
         >
           <X className="w-3.5 h-3.5" />
         </button>
       ) : shortcutBadge ? (
-        <div className="absolute right-2.5 top-1/2 -translate-y-1/2 hidden sm:flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-slate-100 border border-slate-200 text-[10px] font-mono text-slate-400 pointer-events-none">
+        <kbd className="absolute right-2.5 top-1/2 -translate-y-1/2 hidden sm:flex items-center px-1.5 py-0.5 rounded-md surface-muted type-caption pointer-events-none">
           {shortcutBadge}
-        </div>
+        </kbd>
       ) : null}
     </form>
   );

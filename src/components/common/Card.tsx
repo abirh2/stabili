@@ -17,10 +17,10 @@ export const Card: React.FC<CardProps> = ({
   ...props
 }) => {
   const radiusStyles = {
-    lg: 'rounded-xl',
-    xl: 'rounded-2xl',
-    '2xl': 'rounded-2xl',
-    '3xl': 'rounded-3xl',
+    lg: 'radius-control',
+    xl: 'radius-card',
+    '2xl': 'radius-card',
+    '3xl': 'radius-page',
   };
 
   const paddingStyles = {
@@ -31,10 +31,10 @@ export const Card: React.FC<CardProps> = ({
   };
 
   const variantStyles = {
-    surface: 'bg-white border border-slate-200/80 shadow-xs transition-colors duration-150',
-    flat: 'bg-slate-50/90 border border-slate-200/70',
-    interactive: 'bg-white border border-slate-200/80 shadow-xs hover:border-slate-300 hover:shadow-sm transition-all duration-150 cursor-pointer',
-    glass: 'bg-white/85 backdrop-blur-xl border border-slate-200/75 shadow-xs',
+    surface: 'st-card st-card--raised',
+    flat: 'st-card st-card--flat',
+    interactive: 'st-card st-card--interactive cursor-pointer',
+    glass: 'st-card st-card--glass',
   };
 
   return (
@@ -50,29 +50,22 @@ export const Card: React.FC<CardProps> = ({
 export const CardHeader: React.FC<{
   title?: React.ReactNode;
   subtitle?: React.ReactNode;
-  eyebrow?: React.ReactNode;
   action?: React.ReactNode;
   className?: string;
-}> = ({ title, subtitle, eyebrow, action, className = '' }) => {
+}> = ({ title, subtitle, action, className = '' }) => {
   return (
     <div className={`flex items-start justify-between gap-4 mb-4 ${className}`}>
       <div>
-        {eyebrow && (
-          <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 block mb-1">
-            {eyebrow}
-          </span>
-        )}
         {title && (
-          <h3 className="text-lg sm:text-xl font-semibold tracking-tight text-slate-900">
+          <h3 className="type-section-title">
             {title}
           </h3>
         )}
         {subtitle && (
-          <p className="text-xs sm:text-sm text-slate-500 mt-1">{subtitle}</p>
+          <p className="type-metadata mt-1">{subtitle}</p>
         )}
       </div>
       {action && <div className="shrink-0">{action}</div>}
     </div>
   );
 };
-

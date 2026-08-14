@@ -358,7 +358,6 @@ export const MobileFilterSheet: React.FC<MobileFilterSheetProps> = ({
         <div className="p-3.5 sm:p-4 border-t border-slate-100 bg-white flex items-center gap-2.5 shrink-0">
           <Button
             variant="ghost"
-            isPill
             size="md"
             leftIcon={<RotateCcw className="w-4 h-4" />}
             onClick={onResetFilters}
@@ -368,7 +367,6 @@ export const MobileFilterSheet: React.FC<MobileFilterSheetProps> = ({
           </Button>
           <Button
             variant="primary"
-            isPill
             size="md"
             onClick={onClose}
             className="flex-2"
@@ -380,5 +378,4 @@ export const MobileFilterSheet: React.FC<MobileFilterSheetProps> = ({
     </div>
   );
 };
-
 

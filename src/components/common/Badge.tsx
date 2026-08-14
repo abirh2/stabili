@@ -30,8 +30,8 @@ export const Badge: React.FC<BadgeProps> = ({
   className = '',
 }) => {
   const sizeStyles = {
-    sm: "text-[11px] font-medium px-2 py-0.5 gap-1",
-    md: "text-xs font-medium px-2.5 py-0.5 gap-1.5",
+    sm: "text-[11px] px-2 py-0.5 gap-1",
+    md: "text-xs px-2.5 py-1 gap-1.5",
   };
 
   const defaultIcons: Partial<Record<BadgeVariant, React.ReactNode>> = {
@@ -45,23 +45,23 @@ export const Badge: React.FC<BadgeProps> = ({
   };
 
   const variantStyles: Record<BadgeVariant, string> = {
-    stabilized: "bg-emerald-50 text-emerald-800 border border-emerald-200/60",
-    'health-good': "bg-teal-50 text-teal-800 border border-teal-200/60",
-    'health-fair': "bg-amber-50 text-amber-800 border border-amber-200/60",
-    'health-danger': "bg-rose-50 text-rose-800 border border-rose-200/60",
-    'health-unknown': "bg-slate-100 text-slate-700 border border-slate-200/80",
-    violations: "bg-rose-50 text-rose-800 border border-rose-200/60",
-    'unit-count': "bg-slate-100 text-slate-700 border border-slate-200/70",
-    verified: "bg-teal-50 text-teal-800 border border-teal-200/60",
-    neutral: "bg-slate-100/80 text-slate-600 border border-slate-200/60",
-    'accent-teal': "bg-teal-600 text-white shadow-xs",
+    stabilized: "st-badge--positive",
+    'health-good': "st-badge--positive",
+    'health-fair': "st-badge--caution",
+    'health-danger': "st-badge--negative",
+    'health-unknown': "st-badge--neutral",
+    violations: "st-badge--negative",
+    'unit-count': "st-badge--neutral",
+    verified: "st-badge--accent",
+    neutral: "st-badge--neutral",
+    'accent-teal': "st-badge--solid",
   };
 
   const renderedIcon = icon !== undefined ? icon : defaultIcons[variant];
 
   return (
     <span
-      className={`inline-flex items-center rounded-full select-none whitespace-nowrap tracking-tight ${sizeStyles[size]} ${variantStyles[variant]} ${className}`}
+      className={`st-badge select-none ${sizeStyles[size]} ${variantStyles[variant]} ${className}`}
     >
       {renderedIcon && <span className="shrink-0">{renderedIcon}</span>}
       {children}
@@ -84,5 +84,4 @@ export const BuildingHealthBadge: React.FC<{ health?: BuildingHealth | null; cla
   }
   return <Badge variant="health-unknown" className={className}>Not enough data</Badge>;
 };
-
 

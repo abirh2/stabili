@@ -29,18 +29,18 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   return (
     <div
       id={id}
-      className={`text-center py-12 px-6 bg-white rounded-2xl border border-slate-200/80 shadow-2xs max-w-lg mx-auto ${className}`}
+      className={`text-center py-14 px-6 max-w-lg mx-auto ${className}`}
     >
       {icon && (
-        <div className="w-12 h-12 rounded-xl bg-teal-50/80 text-teal-700 flex items-center justify-center border border-teal-100/80 mx-auto mb-3.5">
+        <div className="w-10 h-10 text-accent flex items-center justify-center mx-auto mb-4">
           {icon}
         </div>
       )}
-      <h3 className="text-base font-semibold text-slate-900 tracking-tight">
+      <h3 className="type-section-title">
         {title}
       </h3>
       {description && (
-        <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-sm mx-auto leading-relaxed">
+        <p className="type-body text-secondary mt-2 max-w-sm mx-auto">
           {description}
         </p>
       )}
@@ -51,7 +51,6 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
             <Button
               variant={actionVariant}
               size="sm"
-              isPill
               onClick={onAction}
             >
               {actionLabel}

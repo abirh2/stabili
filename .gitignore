@@ -17,6 +17,8 @@
 AGENTS.md
 graphify-out/*
 node_modules/*
+.impeccable/*
+FRONTEND_DESIGN_AUDIT.md
 
 # Python data-pipeline bytecode.
 __pycache__/

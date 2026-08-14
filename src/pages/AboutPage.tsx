@@ -1,7 +1,7 @@
 import React from 'react';
 import { Route } from '../types';
 import { Button } from '../components/common/Button';
-import { ShieldCheck, Database, HelpCircle, ExternalLink, ArrowRight } from 'lucide-react';
+import { Database, HelpCircle, ExternalLink, ArrowRight } from 'lucide-react';
 
 interface AboutPageProps {
   onNavigate: (route: Route) => void;
@@ -47,17 +47,11 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
   ];
 
   return (
-    <div className="w-full min-h-screen bg-[#F8F9FA] text-slate-800 pb-32">
+    <div className="surface-base text-primary w-full min-h-screen pb-32">
       <main className="max-w-[1200px] mx-auto px-4 sm:px-6 md:px-8 pt-24 md:pt-28 space-y-8">
         {/* Hero Section */}
         <section className="text-center max-w-2xl mx-auto pt-4 pb-2">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-teal-50 text-teal-800 rounded-full mb-3 border border-teal-200/60">
-            <ShieldCheck className="w-3.5 h-3.5 text-teal-700" />
-            <span className="text-xs font-medium">
-              Public Data · Renter Transparency
-            </span>
-          </div>
-          <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight text-slate-900">
+          <h1 className="type-page-title">
             Demystifying NYC Rent Stabilization.
           </h1>
           <p className="text-sm sm:text-base text-slate-500 mt-2.5 leading-relaxed">
@@ -66,13 +60,10 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
         </section>
 
         {/* Mission Card */}
-        <section className="bg-white rounded-2xl border border-slate-200/80 p-6 sm:p-8 md:p-10">
+        <section className="st-card st-card--raised p-6 sm:p-8 md:p-10">
           <div className="max-w-3xl">
-            <span className="text-[11px] font-medium text-teal-800 uppercase tracking-wider block mb-1.5">
-              Our Mission
-            </span>
             <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-slate-900 mb-3">
-              Building trust through verifiable public records.
+              Our mission: building trust through verifiable public records.
             </h2>
             <div className="space-y-3 text-sm text-slate-600 leading-relaxed">
               <p>
@@ -88,7 +79,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
         {/* Public Data Sources Section */}
         <section className="space-y-4">
           <div className="flex items-center gap-2.5">
-            <div className="h-8 w-8 rounded-xl bg-teal-50 text-teal-700 flex items-center justify-center border border-teal-100/80 shrink-0">
+            <div className="h-6 w-6 text-accent flex items-center justify-center shrink-0">
               <Database className="w-4 h-4" />
             </div>
             <div>
@@ -106,7 +97,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
                 href={source.link}
                 target="_blank"
                 rel="noreferrer"
-                className="bg-white p-5 rounded-2xl border border-slate-200/80 hover:border-slate-300 transition-all group block"
+                className="st-card st-card--interactive p-5 group block"
               >
                 <div className="flex items-start justify-between gap-3">
                   <h3 className="text-sm font-semibold text-slate-900 group-hover:text-teal-800 transition-colors">
@@ -123,9 +114,9 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
         </section>
 
         {/* FAQs */}
-        <section className="bg-white rounded-2xl border border-slate-200/80 p-6 sm:p-8 md:p-10 space-y-6">
+        <section className="st-card st-card--raised p-6 sm:p-8 md:p-10 space-y-6">
           <div className="flex items-center gap-2.5">
-            <div className="h-8 w-8 rounded-xl bg-teal-50 text-teal-700 flex items-center justify-center border border-teal-100/80 shrink-0">
+            <div className="h-6 w-6 text-accent flex items-center justify-center shrink-0">
               <HelpCircle className="w-4 h-4" />
             </div>
             <div>
@@ -151,7 +142,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
         </section>
 
         {/* Bottom CTA */}
-        <section className="text-center bg-slate-50 p-6 sm:p-8 rounded-2xl border border-slate-200/80">
+        <section className="surface-muted radius-card text-center p-6 sm:p-8">
           <h3 className="text-base sm:text-lg font-semibold text-slate-900">
             Ready to find your next home?
           </h3>
@@ -161,7 +152,6 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
           <Button
             variant="primary"
             size="md"
-            isPill
             rightIcon={<ArrowRight className="w-3.5 h-3.5" />}
             onClick={() => onNavigate('explore')}
             className="px-6"

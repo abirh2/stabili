@@ -278,7 +278,6 @@ export const MoreFiltersModal: React.FC<MoreFiltersModalProps> = ({
           <Button
             variant="ghost"
             size="sm"
-            isPill
             leftIcon={<RotateCcw className="w-3.5 h-3.5" />}
             onClick={onReset}
           >
@@ -287,7 +286,6 @@ export const MoreFiltersModal: React.FC<MoreFiltersModalProps> = ({
           <Button
             variant="primary"
             size="sm"
-            isPill
             onClick={onClose}
             className="px-5"
           >
@@ -298,5 +296,4 @@ export const MoreFiltersModal: React.FC<MoreFiltersModalProps> = ({
     </div>
   );
 };
-
 

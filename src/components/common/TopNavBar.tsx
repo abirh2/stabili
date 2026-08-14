@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Search, Menu, X, Bookmark } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Bookmark, Menu, Search, X } from 'lucide-react';
 import { StabiliLogo } from './StabiliLogo';
 import { Route } from '../../types';
 
@@ -14,48 +14,45 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
   currentRoute,
   onNavigate,
   onOpenSearch,
-  savedCount = 3,
+  savedCount = 0,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
-
   const navItems: { label: string; route: Route; badge?: number }[] = [
     { label: 'Explore', route: 'explore' },
     { label: 'Saved', route: 'saved', badge: savedCount },
     { label: 'About', route: 'about' },
   ];
 
+  useEffect(() => setMobileMenuOpen(false), [currentRoute]);
+
   return (
-    <header className="fixed top-0 left-0 w-full h-16 flex items-center justify-between px-4 sm:px-6 md:px-8 bg-white/80 backdrop-blur-xl border-b border-slate-200/70 z-50 transition-all">
-      <div className="max-w-[1200px] w-full mx-auto flex items-center justify-between">
-        {/* Brand / Logo + Navigation */}
+    <header className="material-navigation fixed inset-x-0 top-0 z-50 h-16 px-4 sm:px-6 md:px-8">
+      <div className="mx-auto flex h-full w-full max-w-[1200px] items-center justify-between">
         <div className="flex items-center gap-8 md:gap-10">
           <button
+            type="button"
             onClick={() => onNavigate('explore')}
-            className="focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/30 rounded-lg cursor-pointer transition-opacity hover:opacity-85"
+            className="radius-control cursor-pointer transition-opacity hover:opacity-80"
+            aria-label="Go to Explore"
           >
             <StabiliLogo size="md" />
           </button>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
+          <nav className="hidden items-center gap-1 md:flex" aria-label="Primary navigation">
             {navItems.map((item) => {
-              const isActive = currentRoute === item.route;
+              const isActive = currentRoute === item.route ||
+                (item.route === 'explore' && (currentRoute === 'building-details' || currentRoute === 'management-profile'));
               return (
                 <button
                   key={item.route}
+                  type="button"
                   onClick={() => onNavigate(item.route)}
-                  className={`relative py-1.5 px-2.5 rounded-lg transition-colors duration-150 cursor-pointer flex items-center gap-1.5 ${
-                    isActive
-                      ? 'text-teal-700 bg-teal-50/70 font-semibold'
-                      : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100/60'
-                  }`}
+                  aria-current={isActive ? 'page' : undefined}
+                  className={`st-button st-button--sm ${isActive ? 'st-button--subtle-teal' : 'st-button--ghost'}`}
                 >
                   <span>{item.label}</span>
                   {item.badge !== undefined && item.badge > 0 && (
-                    <span className={`text-[11px] px-1.5 py-0.2 rounded-full font-semibold ${
-                      isActive ? 'bg-teal-600 text-white' : 'bg-slate-200/80 text-slate-600'
-                    }`}>
+                    <span className={`st-badge ${isActive ? 'st-badge--solid' : 'st-badge--neutral'} !px-1.5 !py-0 text-[11px]`}>
                       {item.badge}
                     </span>
                   )}
@@ -65,121 +62,68 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
           </nav>
         </div>
 
-        {/* Trailing Actions */}
-        <div className="flex items-center gap-2.5">
-          {/* Quick Search Action Bar */}
-          <div
-            onClick={onOpenSearch}
-            className="relative hidden sm:flex items-center cursor-pointer group"
-          >
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-hover:text-teal-600 transition-colors">
-              <Search className="w-3.5 h-3.5" />
-            </span>
-            <input
-              type="text"
-              readOnly
-              placeholder="Quick search..."
-              className="pl-8.5 pr-8 py-1.5 bg-slate-100/80 hover:bg-slate-200/60 border border-transparent hover:border-slate-200/70 rounded-full text-xs text-slate-800 placeholder:text-slate-400 w-48 md:w-56 focus:ring-2 focus:ring-teal-500/20 outline-none transition-all cursor-pointer"
-            />
-            <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-mono text-slate-400 bg-white/90 px-1.5 py-0.5 rounded border border-slate-200/80">
-              ⌘K
-            </span>
-          </div>
-
-          {/* Mobile Search Icon Button */}
+        <div className="flex items-center gap-1.5">
           <button
             type="button"
             onClick={onOpenSearch}
-            className="sm:hidden p-2 text-slate-600 hover:bg-slate-100 rounded-full transition-colors cursor-pointer"
-            aria-label="Search"
+            className="st-button st-button--secondary hidden w-48 justify-start !px-3 sm:inline-flex md:w-56"
+            aria-label="Open quick search"
           >
-            <Search className="w-4.5 h-4.5 text-slate-600" />
+            <Search className="h-4 w-4 text-tertiary" />
+            <span className="type-metadata flex-1 text-left">Quick search</span>
+            <kbd className="type-caption rounded-md surface-muted px-1.5 py-0.5">⌘K</kbd>
           </button>
 
-          {/* Account/Profile Avatar Pill */}
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
-              className="h-8 w-8 rounded-full bg-slate-100 border border-slate-200/90 flex items-center justify-center text-xs font-semibold text-slate-600 cursor-pointer hover:bg-slate-200/80 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/30 shadow-2xs"
-              aria-label="Account profile"
-            >
-              JD
-            </button>
-
-            {/* Profile Dropdown Drawer */}
-            {profileDropdownOpen && (
-              <div className="absolute right-0 mt-2 w-60 bg-white border border-slate-200/90 rounded-2xl p-3 shadow-lg z-50 animate-in fade-in zoom-in-95 duration-100">
-                <div className="flex items-center gap-2.5 pb-2.5 border-b border-slate-100">
-                  <div className="w-8 h-8 rounded-full bg-teal-50 text-teal-700 flex items-center justify-center font-semibold text-xs border border-teal-100">
-                    JD
-                  </div>
-                  <div>
-                    <p className="text-xs font-semibold text-slate-900">Jane Doe</p>
-                    <p className="text-[11px] text-slate-500">NYC Renter Member</p>
-                  </div>
-                </div>
-                <div className="py-1.5 space-y-0.5">
-                  <button
-                    onClick={() => {
-                      onNavigate('saved');
-                      setProfileDropdownOpen(false);
-                    }}
-                    className="w-full flex items-center gap-2 px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 rounded-xl text-left transition-colors cursor-pointer"
-                  >
-                    <Bookmark className="w-3.5 h-3.5 text-teal-600" />
-                    <span>Saved Buildings ({savedCount})</span>
-                  </button>
-                </div>
-                <div className="pt-2 border-t border-slate-100">
-                  <span className="text-[10px] text-slate-400 block px-1">
-                    Stabili NYC • Public Housing Registry
-                  </span>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Mobile Hamburger Toggle */}
           <button
             type="button"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 text-slate-600 hover:bg-slate-100 rounded-full transition-colors cursor-pointer"
-            aria-label="Toggle navigation menu"
+            onClick={onOpenSearch}
+            className="st-button st-button--ghost st-button--pill inline-flex !w-11 !p-0 sm:hidden"
+            aria-label="Search"
           >
-            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            <Search className="h-5 w-5" />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => onNavigate('saved')}
+            className="st-button st-button--ghost st-button--pill inline-flex !w-11 !p-0 md:hidden"
+            aria-label={`Saved buildings${savedCount ? `, ${savedCount}` : ''}`}
+          >
+            <Bookmark className="h-5 w-5" />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setMobileMenuOpen((open) => !open)}
+            className="st-button st-button--ghost st-button--pill inline-flex !w-11 !p-0 md:hidden"
+            aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+            aria-expanded={mobileMenuOpen}
+          >
+            {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
         </div>
       </div>
 
-      {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="md:hidden absolute top-16 left-0 w-full bg-white border-b border-slate-200/90 px-5 py-3 space-y-1 shadow-lg animate-in slide-in-from-top-2 duration-150">
-          {navItems.map((item) => {
-            const isActive = currentRoute === item.route;
-            return (
-              <button
-                key={item.route}
-                onClick={() => {
-                  onNavigate(item.route);
-                  setMobileMenuOpen(false);
-                }}
-                className={`w-full flex items-center justify-between py-2.5 px-3 rounded-xl text-left text-xs font-medium transition-colors ${
-                  isActive
-                    ? 'bg-teal-50 text-teal-800 font-semibold'
-                    : 'text-slate-700 hover:bg-slate-50'
-                }`}
-              >
-                <span>{item.label}</span>
-                {item.badge !== undefined && item.badge > 0 && (
-                  <span className="text-[11px] px-2 py-0.5 rounded-full bg-teal-600 text-white font-medium">
-                    {item.badge}
-                  </span>
-                )}
-              </button>
-            );
-          })}
-        </div>
+        <nav className="material-sheet absolute inset-x-0 top-16 px-4 py-3 md:hidden" aria-label="Mobile navigation">
+          <div className="mx-auto max-w-[1200px] space-y-1">
+            {navItems.map((item) => {
+              const isActive = currentRoute === item.route;
+              return (
+                <button
+                  key={item.route}
+                  type="button"
+                  onClick={() => onNavigate(item.route)}
+                  aria-current={isActive ? 'page' : undefined}
+                  className={`st-button w-full justify-between ${isActive ? 'st-button--subtle-teal' : 'st-button--ghost'}`}
+                >
+                  <span>{item.label}</span>
+                  {item.badge !== undefined && item.badge > 0 && <span className="st-badge st-badge--neutral">{item.badge}</span>}
+                </button>
+              );
+            })}
+          </div>
+        </nav>
       )}
     </header>
   );

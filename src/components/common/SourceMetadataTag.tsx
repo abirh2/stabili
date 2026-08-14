@@ -17,18 +17,18 @@ export const SourceMetadataTag: React.FC<SourceMetadataTagProps> = ({
   const agencyLabel = source || agency;
 
   const iconMap: Record<string, React.ReactNode> = {
-    'NYS HCR': <Landmark className="w-3 h-3 text-slate-500 shrink-0" />,
-    'NYS Homes and Community Renewal': <Landmark className="w-3 h-3 text-slate-500 shrink-0" />,
-    'NYC HPD': <ShieldCheck className="w-3 h-3 text-teal-600 shrink-0" />,
-    'NYC DOB': <Database className="w-3 h-3 text-amber-600 shrink-0" />,
-    'NYC Open Data': <FileSpreadsheet className="w-3 h-3 text-slate-500 shrink-0" />,
+    'NYS HCR': <Landmark className="w-3 h-3 shrink-0" />,
+    'NYS Homes and Community Renewal': <Landmark className="w-3 h-3 shrink-0" />,
+    'NYC HPD': <ShieldCheck className="w-3 h-3 shrink-0" />,
+    'NYC DOB': <Database className="w-3 h-3 shrink-0" />,
+    'NYC Open Data': <FileSpreadsheet className="w-3 h-3 shrink-0" />,
   };
 
-  const icon = iconMap[agencyLabel] || <Database className="w-3 h-3 text-slate-400 shrink-0" />;
+  const icon = iconMap[agencyLabel] || <Database className="w-3 h-3 shrink-0" />;
 
   if (variant === 'subtle') {
     return (
-      <span className={`inline-flex items-center gap-1 text-[11px] text-slate-400 font-normal ${className}`}>
+      <span className={`type-caption inline-flex items-center gap-1 ${className}`}>
         {icon}
         <span>Source: {agencyLabel}</span>
       </span>
@@ -37,7 +37,7 @@ export const SourceMetadataTag: React.FC<SourceMetadataTagProps> = ({
 
   if (variant === 'inline') {
     return (
-      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-medium bg-slate-100/80 text-slate-600 border border-slate-200/60 ${className}`}>
+      <span className={`st-badge st-badge--neutral ${className}`}>
         {icon}
         <span>{agencyLabel}</span>
       </span>
@@ -45,7 +45,7 @@ export const SourceMetadataTag: React.FC<SourceMetadataTagProps> = ({
   }
 
   return (
-    <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200/70 select-none ${className}`}>
+    <span className={`st-badge st-badge--neutral select-none ${className}`}>
       {icon}
       <span>{agencyLabel}</span>
     </span>

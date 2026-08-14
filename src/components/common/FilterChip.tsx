@@ -51,23 +51,22 @@ export const FilterChip: React.FC<FilterChipProps> = ({
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium tracking-tight transition-all duration-150 cursor-pointer select-none border ${
-          isHighlighted
-            ? 'bg-teal-50 text-teal-800 border-teal-200/80 shadow-xs font-semibold'
-            : 'bg-white text-slate-700 border-slate-200/80 hover:border-slate-300 hover:bg-slate-50/80 shadow-xs'
-        }`}
+        aria-expanded={isOpen}
+        aria-haspopup="listbox"
+        className="st-chip"
+        data-active={isHighlighted ? 'true' : 'false'}
       >
         <span>{displayLabel}</span>
         <ChevronDown
-          className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-150 ${
-            isOpen ? 'rotate-180 text-teal-600' : ''
+          className={`w-3.5 h-3.5 text-tertiary transition-transform duration-150 ${
+            isOpen ? 'rotate-180 text-accent' : ''
           }`}
         />
       </button>
 
       {/* Dropdown Menu */}
       {isOpen && normalizedOptions.length > 0 && (
-        <div className="absolute left-0 mt-1.5 min-w-[200px] bg-white border border-slate-200/90 rounded-2xl p-1.5 shadow-md z-50 animate-in fade-in zoom-in-95 duration-100">
+        <div className="st-popover absolute left-0 mt-1.5 min-w-[200px] p-1.5 z-50" role="listbox">
           <div className="max-h-60 overflow-y-auto stabili-scroller py-0.5">
             {normalizedOptions.map((option) => {
               const isSelected = selectedValue === option.value;
@@ -75,18 +74,16 @@ export const FilterChip: React.FC<FilterChipProps> = ({
                 <button
                   key={option.value}
                   type="button"
+                  role="option"
+                  aria-selected={isSelected}
                   onClick={() => {
                     if (onSelect) onSelect(option.value);
                     setIsOpen(false);
                   }}
-                  className={`w-full flex items-center justify-between px-3 py-1.5 text-xs font-medium rounded-xl text-left transition-colors cursor-pointer ${
-                    isSelected
-                      ? 'bg-teal-50 text-teal-800 font-semibold'
-                      : 'text-slate-700 hover:bg-slate-100/70 hover:text-slate-900'
-                  }`}
+                  className="st-option cursor-pointer"
                 >
                   <span>{option.label}</span>
-                  {isSelected && <Check className="w-3.5 h-3.5 text-teal-600" />}
+                  {isSelected && <Check className="w-3.5 h-3.5 text-accent" />}
                 </button>
               );
             })}
@@ -96,4 +93,3 @@ export const FilterChip: React.FC<FilterChipProps> = ({
     </div>
   );
 };
-

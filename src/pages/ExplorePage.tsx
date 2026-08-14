@@ -100,11 +100,11 @@ export const ExplorePage: React.FC<ExplorePageProps> = ({
   };
 
   return (
-    <div className="w-full min-h-screen flex flex-col bg-[#F8F9FA] text-slate-800">
-      <section className="pt-20 md:pt-24 pb-4 px-4 sm:px-6 md:px-8 border-b border-slate-200/80 bg-white/80 backdrop-blur-md">
+    <div className="surface-base text-primary w-full min-h-screen flex flex-col">
+      <section className="separator pt-20 md:pt-24 pb-5 px-4 sm:px-6 md:px-8 border-b">
         <div className="max-w-[1240px] mx-auto w-full">
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">Find rent-stabilized buildings in NYC.</h1>
-          <p className="text-sm sm:text-base text-slate-500 mt-1 max-w-2xl">Explore generated public records and available owner or management information.</p>
+          <h1 className="type-page-title">Find rent-stabilized buildings in NYC.</h1>
+          <p className="type-body text-secondary mt-1.5 max-w-2xl">Explore generated public records and available owner or management information.</p>
           <div className="mt-4 w-full max-w-3xl">
             <SearchBar value={searchQuery} onChange={setSearchQuery} placeholder="Search an address, borough, ZIP code, or management name" size="lg" />
           </div>
@@ -112,19 +112,19 @@ export const ExplorePage: React.FC<ExplorePageProps> = ({
             <FilterChip label="Borough" options={['All', 'Manhattan', 'Brooklyn', 'Queens', 'Bronx', 'Staten Island']} selectedValue={borough} onSelect={setBorough} />
             <FilterChip label="Building health" options={['All', 'Low concern', 'Some concerns', 'Higher concern', 'Not enough data']} selectedValue={health} onSelect={setHealth} />
             <FilterChip label="Management" options={['All', 'Name available', 'Name unavailable']} selectedValue={management} onSelect={setManagement} />
-            <label className="inline-flex items-center gap-1.5 bg-white border border-slate-200/90 rounded-full px-3 py-1.5 text-xs text-slate-600">
+            <label className="st-chip">
               ZIP
               <select value={zip} onChange={(event) => setZip(event.target.value)} className="bg-transparent font-medium outline-none max-w-24">
                 <option>All</option>{zips.map((value) => <option key={value}>{value}</option>)}
               </select>
             </label>
-            <label className="inline-flex items-center gap-1.5 bg-white border border-slate-200/90 rounded-full px-3 py-1.5 text-xs text-slate-600">
+            <label className="st-chip">
               Record match
               <select value={matchStatus} onChange={(event) => setMatchStatus(event.target.value)} className="bg-transparent font-medium outline-none">
                 <option value="All">All</option><option value="matched">Matched</option><option value="ambiguous">Ambiguous</option>
               </select>
             </label>
-            {hasFilters && <button onClick={reset} className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-slate-500 hover:text-slate-900"><RotateCcw className="w-3 h-3" />Reset</button>}
+            {hasFilters && <button onClick={reset} className="st-button st-button--ghost st-button--sm"><RotateCcw className="w-3 h-3" />Reset</button>}
           </div>
         </div>
       </section>
@@ -138,20 +138,20 @@ export const ExplorePage: React.FC<ExplorePageProps> = ({
           <>
             <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
               <div>
-                <h2 className="text-lg font-semibold text-slate-900">{filtered.length.toLocaleString()} buildings</h2>
-                {filtered.length > DISPLAY_LIMIT && <p className="text-xs text-slate-500">Showing the first {DISPLAY_LIMIT}; narrow the filters to refine results.</p>}
+                <h2 className="type-section-title">{filtered.length.toLocaleString()} buildings</h2>
+                {filtered.length > DISPLAY_LIMIT && <p className="type-metadata">Showing the first {DISPLAY_LIMIT}; narrow the filters to refine results.</p>}
               </div>
               <div className="flex items-center gap-2">
-                <select value={sortBy} onChange={(event) => setSortBy(event.target.value as typeof sortBy)} className="bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium">
+                <select value={sortBy} onChange={(event) => setSortBy(event.target.value as typeof sortBy)} className="st-input !min-h-10 w-auto px-3 py-2 text-xs font-medium">
                   <option value="default">Source order</option><option value="units-desc">Most units</option><option value="year-desc">Newest built</option><option value="violations-asc">Fewest open violations</option>
                 </select>
-                <div className="flex md:hidden p-0.5 bg-slate-100 rounded-full border border-slate-200" aria-label="Explore view">
-                  <button type="button" onClick={() => setMobileView('list')} className={`p-2 rounded-full ${mobileView === 'list' ? 'bg-white shadow-2xs' : ''}`} title="List view" aria-pressed={mobileView === 'list'}><List className="w-4 h-4" /></button>
-                  <button type="button" onClick={() => setMobileView('map')} className={`p-2 rounded-full ${mobileView === 'map' ? 'bg-white shadow-2xs' : ''}`} title="Map view" aria-pressed={mobileView === 'map'}><MapIcon className="w-4 h-4" /></button>
+                <div className="flex md:hidden gap-0.5" aria-label="Explore view">
+                  <button type="button" onClick={() => setMobileView('list')} className="st-chip !min-h-10 !w-10 !p-0" data-active={mobileView === 'list'} title="List view" aria-pressed={mobileView === 'list'}><List className="w-4 h-4" /></button>
+                  <button type="button" onClick={() => setMobileView('map')} className="st-chip !min-h-10 !w-10 !p-0" data-active={mobileView === 'map'} title="Map view" aria-pressed={mobileView === 'map'}><MapIcon className="w-4 h-4" /></button>
                 </div>
-                <div className="hidden md:flex p-0.5 bg-slate-100 rounded-full border border-slate-200">
-                  <button type="button" onClick={() => setDesktopLayout('split')} className={`p-2 rounded-full ${desktopLayout === 'split' ? 'bg-white shadow-2xs' : ''}`} title="List and map" aria-pressed={desktopLayout === 'split'}><MapIcon className="w-4 h-4" /></button>
-                  <button type="button" onClick={() => setDesktopLayout('list')} className={`p-2 rounded-full ${desktopLayout === 'list' ? 'bg-white shadow-2xs' : ''}`} title="List only" aria-pressed={desktopLayout === 'list'}><List className="w-4 h-4" /></button>
+                <div className="hidden md:flex gap-0.5">
+                  <button type="button" onClick={() => setDesktopLayout('split')} className="st-chip !min-h-10 !w-10 !p-0" data-active={desktopLayout === 'split'} title="List and map" aria-pressed={desktopLayout === 'split'}><MapIcon className="w-4 h-4" /></button>
+                  <button type="button" onClick={() => setDesktopLayout('list')} className="st-chip !min-h-10 !w-10 !p-0" data-active={desktopLayout === 'list'} title="List only" aria-pressed={desktopLayout === 'list'}><List className="w-4 h-4" /></button>
                 </div>
               </div>
             </div>

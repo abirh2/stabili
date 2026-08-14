@@ -40,7 +40,7 @@ export const PageContainer: React.FC<PageContainerProps> = ({
   return (
     <div
       id={id}
-      className={`w-full min-h-screen bg-[#F8F9FA] text-slate-800 flex flex-col ${
+      className={`surface-base text-primary w-full min-h-screen flex flex-col ${
         bottomPadding ? 'pb-24 sm:pb-32' : ''
       } ${className}`}
     >
@@ -51,7 +51,7 @@ export const PageContainer: React.FC<PageContainerProps> = ({
             <button
               type="button"
               onClick={backAction.onBack}
-              className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-teal-800 transition-colors cursor-pointer"
+              className="st-button st-button--ghost st-button--sm !px-0"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>{backAction.label}</span>

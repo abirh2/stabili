@@ -16,16 +16,16 @@ export const PublicRecordErrorState: React.FC<PublicRecordErrorStateProps> = ({
   className = '',
 }) => {
   return (
-    <div className={`p-6 sm:p-8 bg-slate-50/80 rounded-2xl border border-slate-200 text-center max-w-md mx-auto my-6 shadow-2xs ${className}`}>
-      <div className="w-12 h-12 rounded-2xl bg-white text-slate-500 border border-slate-200/80 flex items-center justify-center mx-auto mb-3.5 shadow-2xs">
-        <Database className="w-5 h-5 text-slate-400" />
+    <div className={`surface-muted radius-card p-6 sm:p-8 text-center max-w-md mx-auto my-6 ${className}`} role="alert">
+      <div className="text-tertiary flex h-10 w-10 items-center justify-center mx-auto mb-3.5">
+        <Database className="w-5 h-5" />
       </div>
 
-      <h3 className="text-base font-semibold text-slate-900 tracking-tight">
+      <h3 className="type-section-title">
         {title}
       </h3>
 
-      <p className="text-xs sm:text-sm text-slate-500 mt-1.5 leading-relaxed">
+      <p className="type-body text-secondary mt-1.5">
         {description}
       </p>
 
@@ -34,7 +34,6 @@ export const PublicRecordErrorState: React.FC<PublicRecordErrorStateProps> = ({
           <Button
             variant="secondary"
             size="sm"
-            isPill
             leftIcon={<RefreshCw className="w-3.5 h-3.5" />}
             onClick={onRetry}
           >

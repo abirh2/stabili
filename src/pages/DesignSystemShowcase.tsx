@@ -177,16 +177,16 @@ export const DesignSystemShowcase: React.FC<DesignSystemShowcaseProps> = ({ onNa
           </div>
 
           <div className="flex flex-wrap gap-3 items-center pt-2">
-            <Button variant="primary" isPill leftIcon={<Mail className="w-4 h-4" />}>
-              Pill with Left Icon
+            <Button variant="primary" leftIcon={<Mail className="w-4 h-4" />}>
+              Button with Left Icon
             </Button>
-            <Button variant="secondary" isPill leftIcon={<Bookmark className="w-4 h-4" />}>
+            <Button variant="secondary" leftIcon={<Bookmark className="w-4 h-4" />}>
               Save Building
             </Button>
-            <Button variant="primary" size="sm" isPill>
-              Small Pill
+            <Button variant="primary" size="sm">
+              Small Button
             </Button>
-            <Button variant="primary" size="lg" isPill>
+            <Button variant="primary" size="lg">
               Large Action
             </Button>
           </div>

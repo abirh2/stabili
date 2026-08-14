@@ -53,6 +53,17 @@ export default function App() {
     }
   }, [savedBuildingIds]);
 
+  useEffect(() => {
+    const handleQuickSearch = (event: KeyboardEvent) => {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault();
+        setIsSearchOpen((open) => !open);
+      }
+    };
+    window.addEventListener('keydown', handleQuickSearch);
+    return () => window.removeEventListener('keydown', handleQuickSearch);
+  }, []);
+
   const handleNavigate = (route: Route) => {
     navigateTo({ route });
   };
@@ -72,7 +83,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#F8F9FA] text-slate-800 font-sans">
+    <div className="surface-base text-primary min-h-screen flex flex-col font-sans">
       {/* Universal Sticky Frosted Navigation Bar */}
       <TopNavBar
         currentRoute={location.route}

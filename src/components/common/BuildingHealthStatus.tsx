@@ -25,61 +25,61 @@ export const BuildingHealthStatus: React.FC<BuildingHealthStatusProps> = ({
       shortLabel: 'Low concern',
       description: 'Low open violation activity on municipal record; minimal HPD items.',
       icon: CheckCircle2,
-      badgeStyles: 'bg-emerald-50 text-emerald-800 border-emerald-200/70',
-      iconColor: 'text-emerald-700',
-      cardBorder: 'border-emerald-200/80 bg-emerald-50/50',
+      badgeStyles: 'st-badge--positive',
+      iconColor: 'text-[var(--st-positive)]',
+      cardBorder: 'bg-[var(--st-positive-subtle)]',
     },
     Fair: {
       label: 'Some concerns',
       shortLabel: 'Some concerns',
       description: 'Moderate open violation count or 311 maintenance reports under review.',
       icon: AlertTriangle,
-      badgeStyles: 'bg-amber-50 text-amber-900 border-amber-200/70',
-      iconColor: 'text-amber-700',
-      cardBorder: 'border-amber-200/80 bg-amber-50/50',
+      badgeStyles: 'st-badge--caution',
+      iconColor: 'text-[var(--st-caution)]',
+      cardBorder: 'bg-[var(--st-caution-subtle)]',
     },
     'Needs Attention': {
       label: 'Higher concern',
       shortLabel: 'Higher concern',
       description: 'Elevated open municipal code violations or active Class C notices requiring inspection.',
       icon: AlertCircle,
-      badgeStyles: 'bg-rose-50 text-rose-800 border-rose-200/70',
-      iconColor: 'text-rose-700',
-      cardBorder: 'border-rose-200/80 bg-rose-50/50',
+      badgeStyles: 'st-badge--negative',
+      iconColor: 'text-[var(--st-negative)]',
+      cardBorder: 'bg-[var(--st-negative-subtle)]',
     },
     'Not enough data': {
       label: 'Not enough data',
       shortLabel: 'Not enough data',
       description: 'Insufficient public municipal data to calculate a Stabili Building Health rating.',
       icon: HelpCircle,
-      badgeStyles: 'bg-slate-100 text-slate-700 border-slate-200/80',
-      iconColor: 'text-slate-500',
-      cardBorder: 'border-slate-200/80 bg-slate-50/80',
+      badgeStyles: 'st-badge--neutral',
+      iconColor: 'text-secondary',
+      cardBorder: 'surface-muted',
     },
   }[currentHealth] || {
     label: 'Not enough data',
     shortLabel: 'Not enough data',
     description: 'Insufficient public municipal records available.',
     icon: HelpCircle,
-    badgeStyles: 'bg-slate-100 text-slate-700 border-slate-200/80',
-    iconColor: 'text-slate-500',
-    cardBorder: 'border-slate-200/80 bg-slate-50/80',
+    badgeStyles: 'st-badge--neutral',
+    iconColor: 'text-secondary',
+    cardBorder: 'surface-muted',
   };
 
   const Icon = config.icon;
 
   if (variant === 'card') {
     return (
-      <div className={`p-3.5 rounded-xl border flex items-center gap-3 ${config.cardBorder} ${className}`}>
-        <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border bg-white ${config.iconColor}`}>
+      <div className={`radius-control flex items-center gap-3 p-3.5 ${config.cardBorder} ${className}`}>
+        <div className={`flex h-8 w-8 shrink-0 items-center justify-center ${config.iconColor}`}>
           <Icon className="w-5 h-5" />
         </div>
         <div>
-          <h4 className="text-sm font-semibold text-slate-900 leading-tight">
-            {config.label}
+          <h4 className="type-label text-primary">
+            Stabili summary · {config.label}
           </h4>
           {showDescription && (
-            <span className="text-[11px] text-slate-500 block mt-0.5">
+            <span className="type-caption block mt-0.5">
               {config.description}
             </span>
           )}
@@ -112,11 +112,10 @@ export const BuildingHealthStatus: React.FC<BuildingHealthStatusProps> = ({
 
   return (
     <span
-      className={`inline-flex items-center rounded-full font-medium border select-none whitespace-nowrap tracking-tight ${sizeStyles} ${config.badgeStyles} ${className}`}
+      className={`st-badge select-none ${sizeStyles} ${config.badgeStyles} ${className}`}
     >
       <Icon className={`${iconSizes} shrink-0`} />
       <span>{size === 'sm' ? config.shortLabel : config.label}</span>
     </span>
   );
 };
-

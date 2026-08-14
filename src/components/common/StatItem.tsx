@@ -23,14 +23,14 @@ export const StatItem: React.FC<StatItemProps> = ({
 }) => {
   if (variant === 'row') {
     return (
-      <div className={`flex items-center justify-between py-2 border-b border-slate-100 last:border-0 ${className}`}>
+      <div className={`separator flex items-center justify-between py-2.5 border-b last:border-0 ${className}`}>
         <div className="flex items-center gap-2">
-          {icon && <span className="text-slate-400 shrink-0">{icon}</span>}
-          <span className="text-xs text-slate-600 font-normal">{label}</span>
+          {icon && <span className="text-tertiary shrink-0">{icon}</span>}
+          <span className="type-metadata">{label}</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className={`text-xs font-semibold text-slate-900 ${valueClassName}`}>{value}</span>
-          {subtext && <span className="text-[11px] text-slate-400 font-normal">{subtext}</span>}
+          <span className={`type-label text-primary ${valueClassName}`}>{value}</span>
+          {subtext && <span className="type-caption">{subtext}</span>}
           {action}
         </div>
       </div>
@@ -40,36 +40,34 @@ export const StatItem: React.FC<StatItemProps> = ({
   if (variant === 'compact') {
     return (
       <div className={`flex flex-col ${className}`}>
-        <span className="text-[10px] text-slate-400 uppercase tracking-wider block font-medium">
+        <span className="type-caption block">
           {label}
         </span>
         <div className="flex items-center gap-1.5 mt-0.5">
-          {icon && <span className="text-teal-600 shrink-0">{icon}</span>}
-          <span className={`text-xs font-semibold text-slate-900 ${valueClassName}`}>{value}</span>
+          {icon && <span className="text-accent shrink-0">{icon}</span>}
+          <span className={`type-label text-primary ${valueClassName}`}>{value}</span>
         </div>
-        {subtext && <span className="text-[10px] text-slate-400 mt-0.5">{subtext}</span>}
+        {subtext && <span className="type-caption mt-0.5">{subtext}</span>}
       </div>
     );
   }
 
   // Default 'card' variant
-  const variantBg = variant === 'accent-teal' 
-    ? 'bg-teal-50/70 border-teal-200/80' 
-    : 'bg-slate-50/80 border-slate-100';
+  const variantBg = variant === 'accent-teal' ? 'bg-[var(--st-accent-subtle)]' : '';
 
   return (
-    <div className={`p-3.5 rounded-xl border ${variantBg} ${className}`}>
+    <div className={`separator border-t py-3 ${variantBg} ${className}`}>
       <div className="flex items-center justify-between gap-1 mb-1">
-        <span className="text-[10px] font-medium text-slate-400 uppercase tracking-wider block">
+        <span className="type-caption block">
           {label}
         </span>
-        {action || (icon && <span className="text-slate-400 shrink-0">{icon}</span>)}
+        {action || (icon && <span className="text-tertiary shrink-0">{icon}</span>)}
       </div>
-      <div className={`text-xl font-bold tracking-tight text-slate-900 ${valueClassName}`}>
+      <div className={`text-lg font-semibold tracking-[-0.018em] text-primary tabular-nums ${valueClassName}`}>
         {value}
       </div>
       {subtext && (
-        <span className="text-[11px] text-slate-500 block mt-0.5 font-normal">
+        <span className="type-caption block mt-0.5">
           {subtext}
         </span>
       )}

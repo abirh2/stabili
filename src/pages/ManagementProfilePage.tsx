@@ -55,10 +55,10 @@ export const ManagementProfilePage: React.FC<ManagementProfilePageProps> = ({
   return (
     <PageContainer backAction={{ label: 'Back to Explore', onBack: () => onNavigate('explore') }}>
       <div className="space-y-7">
-        <header className="bg-white rounded-2xl border border-slate-200/80 p-5 sm:p-7 shadow-2xs">
-          <span className="text-[11px] font-medium uppercase tracking-wider text-teal-800">Management name on public records</span>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 mt-1">{managementName}</h1>
-          <p className="text-xs text-slate-500 mt-2 max-w-2xl">Associated records are grouped by exact management-name text. This does not assert that similarly named entities are the same legal organization.</p>
+        <header className="st-card st-card--raised p-5 sm:p-7">
+          <span className="type-label">Management name on public records</span>
+          <h1 className="type-page-title mt-1">{managementName}</h1>
+          <p className="type-metadata mt-2 max-w-2xl">Associated records are grouped by exact management-name text. This does not assert that similarly named entities are the same legal organization.</p>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-5">
             <StatItem label="Associated records" value={records.length.toLocaleString()} />
             <StatItem label="Boroughs represented" value={boroughCount} />

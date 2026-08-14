@@ -12,7 +12,7 @@ export const StabiliLogo: React.FC<StabiliLogoProps> = ({
   className = '',
   size = 'md',
   showText = true,
-  textColor = 'text-slate-900',
+  textColor = 'text-primary',
   iconOnly = false,
 }) => {
   const iconSizes = {
@@ -31,7 +31,7 @@ export const StabiliLogo: React.FC<StabiliLogoProps> = ({
     <div className={`inline-flex items-center gap-2 select-none ${className}`}>
       {/* Precision Geometric Stabili Architectural Building Logo */}
       <svg
-        className={`${iconSizes[size]} text-teal-600 flex-shrink-0`}
+        className={`${iconSizes[size]} text-accent flex-shrink-0`}
         viewBox="0 0 100 100"
         fill="currentColor"
         xmlns="http://www.w3.org/2000/svg"
@@ -59,7 +59,7 @@ export const StabiliLogo: React.FC<StabiliLogoProps> = ({
 
       {showText && !iconOnly && (
         <span className={`${textSizes[size]} ${textColor} tracking-tight font-bold font-sans`}>
-          <span className="text-teal-600">S</span>tabili
+          <span className="text-accent">S</span>tabili
         </span>
       )}
     </div>
