@@ -25,6 +25,12 @@ colors:
   scrim: "rgb(17 20 18 / 32%)"
   on-accent: "#ffffff"
 typography:
+  about-display:
+    fontFamily: "-apple-system, BlinkMacSystemFont, SF Pro Text, SF Pro Display, system-ui, sans-serif"
+    fontSize: "clamp(2.75rem, 5.5vw, 5rem)"
+    fontWeight: 680
+    lineHeight: 0.98
+    letterSpacing: "-0.04em"
   page-title:
     fontFamily: "-apple-system, BlinkMacSystemFont, SF Pro Text, SF Pro Display, system-ui, sans-serif"
     fontSize: "clamp(1.75rem, 3vw, 2.25rem)"
@@ -190,6 +196,7 @@ The palette pairs warm paper-like neutrals with graphite text, a restrained deep
 
 ### Hierarchy
 
+- **About Editorial Display** (680, fluid to 5rem, 0.98 line height, -0.04em tracking): An intentional route-specific extension for the About hero's three-part civic narrative; it is not the default page-title scale.
 - **Page Title** (650, fluid compact display, 1.1 line height): Names a page or primary research task; keep it concise and balanced.
 - **Section Title** (620, compact headline, 1.25 line height): Introduces durable groups within a page.
 - **Building Title** (620, body-scale title, 1.35 line height): Gives an address or record name prominence inside dense results.
@@ -204,11 +211,19 @@ The palette pairs warm paper-like neutrals with graphite text, a restrained deep
 
 **The Quiet Weight Rule.** Use spacing, scale, and contrast before adding bold weight; reserve the strongest weight for the Stabili wordmark.
 
+**The Editorial Exception Rule.** About may extend the system display scale to 5rem with tight -0.04em tracking because it is a reading-led civic narrative. This exception does not authorize oversized headings on research or operating surfaces.
+
 ## Layout
 
 Shared pages use a centered content plane capped at 1200px, with a 1240px option for the exploration surface. Horizontal page gutters step from 16px on compact screens to 24px and then 32px; the fixed navigation is 64px high, and content normally clears it with 80px to 96px of top space.
 
 The spacing rhythm is based on recurring 8px, 12px, 16px, 20px, 24px, and 32px intervals. Dense record facts may use smaller local gaps, but primary groups should be separated by alignment and whitespace before adding a container. Responsive layouts collapse to one column first; multi-column organization begins where the content remains readable, and coarse-pointer controls grow to a 44px minimum height.
+
+### About Route
+
+About is a wide civic-editorial narrative on a 76rem content plane. Its reading order is fixed: purpose; Find, Understand, Contact; official source data versus Stabili interpretation; calm limitations; source ledger; action. The hero pairs the editorial statement with a connected building-record line motif so the visual metaphor reinforces the product's address-to-record model.
+
+Sections remain flat by default. The workflow is paced by generous spacing and border-block separators; limitations becomes a full-width, square-edged muted-paper band; sources form a ruled ledger rather than a card grid. On compact screens the composition becomes one column, the workflow connection turns vertical, the interpretation pair stacks, and critical explanatory copy is never smaller than 0.875rem with 1.6 line height.
 
 **The Continuous Plane Rule.** Treat the page as one coherent research surface. Add a card only when its content behaves as an independent object, not merely to wrap another section.
 
@@ -275,7 +290,15 @@ The fixed 64px navigation uses translucent paper and a soft bottom separator eve
 
 ### Interpretation Surface
 
-Consequential explanatory pairs may become one purposeful raised surface rather than two unrelated cards. The established About treatment places Stabili's meaning in a pale-teal half and limitations in a neutral half, divided by one soft separator; it collapses to a vertical pair on compact screens. Use this pattern only when the contrast between interpretation and constraint materially improves comprehension.
+Consequential explanatory pairs may become one purposeful raised surface rather than two unrelated cards. The established About treatment places official source meaning on elevated paper and Stabili interpretation on a pale-teal half; the joined surface collapses to a vertical pair on compact screens. It is the only justified evidence object on About and must not spread into a field of cards.
+
+### Building-Record Motif
+
+The About hero's signature motif connects one building address to official records and clear context with a single vertical line. That line draws once with a 650ms top-origin `scaleY` entrance using the established ease-out curve; reduced-motion removes the animation entirely. Keep the motif compact, diagrammatic, and subordinate to the hero statement.
+
+### Source Ledger
+
+About sources are full-width ruled rows, not cards. Each row aligns a compact uppercase agency mark, official source name, plain-language role, and external-link cue; soft separators preserve scan rhythm, and a restrained teal wash supplies hover feedback without adding elevation.
 
 ### Building Result
 
@@ -291,6 +314,7 @@ The building result is the signature shared record object: an interactive flat r
 - **Do** reserve raised depth for independent objects and floating depth for true overlays.
 - **Do** preserve visible keyboard focus, comfortable touch targets, reduced motion, reduced transparency, and increased contrast behavior.
 - **Do** make hover, focus, selected, disabled, loading, empty, and error states clear without changing the product's factual meaning.
+- **Do** preserve About's purpose-to-action narrative order, paired evidence surface, muted limitations band, and source ledger as one deliberate editorial composition.
 
 ### Don't:
 
@@ -300,3 +324,4 @@ The building result is the signature shared record object: an interactive flat r
 - **Don't** turn every label into a pill or introduce arbitrary corner radii.
 - **Don't** scatter literal palette values through shared components; use the semantic foundation tokens.
 - **Don't** promote a current page-specific arrangement into system guidance until that surface is deliberately migrated.
+- **Don't** turn About's workflow, limitations, or source ledger into stacked cards; the joined interpretation surface is its sole evidence object.
