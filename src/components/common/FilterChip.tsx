@@ -11,6 +11,8 @@ interface FilterChipProps {
   options: (string | FilterOption)[];
   selectedValues: string[];
   onChange: (values: string[]) => void;
+  isOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
   className?: string;
 }
 
@@ -25,9 +27,11 @@ export const FilterChip: React.FC<FilterChipProps> = ({
   options,
   selectedValues,
   onChange,
+  isOpen: controlledOpen,
+  onOpenChange,
   className = '',
 }) => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
   const [isCompact, setIsCompact] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -37,6 +41,11 @@ export const FilterChip: React.FC<FilterChipProps> = ({
   const normalizedOptions = options.map((option) => (
     typeof option === 'string' ? { label: option, value: option } : option
   ));
+  const isOpen = controlledOpen ?? internalOpen;
+  const setOpen = (open: boolean) => {
+    if (controlledOpen === undefined) setInternalOpen(open);
+    onOpenChange?.(open);
+  };
 
   useEffect(() => {
     const mediaQuery = window.matchMedia('(max-width: 639px)');
@@ -56,15 +65,15 @@ export const FilterChip: React.FC<FilterChipProps> = ({
         : rootRef.current?.querySelector<HTMLButtonElement>('[role="checkbox"]');
       target?.focus();
     });
-    const close = () => {
-      setIsOpen(false);
+    const closeAndRestoreFocus = () => {
+      setOpen(false);
       window.requestAnimationFrame(() => triggerRef.current?.focus());
     };
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') close();
+      if (event.key === 'Escape') closeAndRestoreFocus();
     };
     const handlePointerDown = (event: MouseEvent) => {
-      if (!isCompact && rootRef.current && !rootRef.current.contains(event.target as Node)) close();
+      if (!isCompact && rootRef.current && !rootRef.current.contains(event.target as Node)) setOpen(false);
     };
     document.addEventListener('keydown', handleKeyDown);
     document.addEventListener('mousedown', handlePointerDown);
@@ -77,7 +86,7 @@ export const FilterChip: React.FC<FilterChipProps> = ({
   }, [isCompact, isOpen]);
 
   const close = () => {
-    setIsOpen(false);
+    setOpen(false);
     window.requestAnimationFrame(() => triggerRef.current?.focus());
   };
 
@@ -92,7 +101,7 @@ export const FilterChip: React.FC<FilterChipProps> = ({
       <button
         ref={triggerRef}
         type="button"
-        onClick={() => setIsOpen((open) => !open)}
+        onClick={() => setOpen(!isOpen)}
         aria-expanded={isOpen}
         aria-haspopup="dialog"
         aria-controls={isOpen ? panelId : undefined}

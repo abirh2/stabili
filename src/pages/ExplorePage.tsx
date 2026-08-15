@@ -101,7 +101,8 @@ export const ExplorePage: React.FC<ExplorePageProps> = ({
   const [mobileView, setMobileView] = useState<'list' | 'map'>('list');
   const [isDesktop, setIsDesktop] = useState(() => typeof window !== 'undefined' && window.matchMedia('(min-width: 768px)').matches);
   const [activeBuildingId, setActiveBuildingId] = useState<string | null>(null);
-  const [moreFiltersOpen, setMoreFiltersOpen] = useState(false);
+  const [openFilter, setOpenFilter] = useState<'borough' | 'health' | 'more' | null>(null);
+  const moreFiltersOpen = openFilter === 'more';
   const filtersRef = useRef<HTMLDivElement>(null);
   const moreFiltersButtonRef = useRef<HTMLButtonElement>(null);
   const closeFiltersButtonRef = useRef<HTMLButtonElement>(null);
@@ -128,7 +129,7 @@ export const ExplorePage: React.FC<ExplorePageProps> = ({
 
   useEffect(() => {
     if (!moreFiltersOpen) {
-      if (filtersWereOpenRef.current) moreFiltersButtonRef.current?.focus();
+      if (filtersWereOpenRef.current && openFilter === null) moreFiltersButtonRef.current?.focus();
       filtersWereOpenRef.current = false;
       return;
     }
@@ -138,10 +139,10 @@ export const ExplorePage: React.FC<ExplorePageProps> = ({
     const previousOverflow = document.body.style.overflow;
     if (isCompactSheet) document.body.style.overflow = 'hidden';
     const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setMoreFiltersOpen(false);
+      if (event.key === 'Escape') setOpenFilter(null);
     };
     const closeOnOutsideClick = (event: MouseEvent) => {
-      if (filtersRef.current && !filtersRef.current.contains(event.target as Node)) setMoreFiltersOpen(false);
+      if (filtersRef.current && !filtersRef.current.contains(event.target as Node)) setOpenFilter(null);
     };
     document.addEventListener('keydown', closeOnEscape);
     document.addEventListener('mousedown', closeOnOutsideClick);
@@ -151,7 +152,7 @@ export const ExplorePage: React.FC<ExplorePageProps> = ({
       document.removeEventListener('keydown', closeOnEscape);
       document.removeEventListener('mousedown', closeOnOutsideClick);
     };
-  }, [moreFiltersOpen]);
+  }, [moreFiltersOpen, openFilter]);
 
   const zips = useMemo(() => Array.from(new Set(records.map((record) => record.zipCode).filter((value): value is string => Boolean(value)))).sort(), [records]);
   const hasFilters = Boolean(searchQuery.trim() || boroughs.length || zipsSelected.length || healthStates.length || managementStates.length || matchStatuses.length);
@@ -193,25 +194,30 @@ export const ExplorePage: React.FC<ExplorePageProps> = ({
     <div className="surface-base text-primary w-full min-h-screen flex flex-col">
       <section className="explore-search-zone pt-20 md:pt-24 px-4 sm:px-6 md:px-8">
         <div className="max-w-[1240px] mx-auto w-full">
-          <div className="max-w-3xl">
-            <h1 className="type-page-title">Explore stabilized buildings</h1>
-            <p className="type-body text-secondary mt-1.5 max-w-2xl">Search New York City public records by address, place, or management name.</p>
-          </div>
-          <div className="explore-search mt-4 w-full max-w-4xl">
-            <SearchBar value={searchQuery} onChange={setSearchQuery} placeholder="Search address, borough, ZIP, or management" size="lg" />
-          </div>
-          <div className="mt-3 flex flex-wrap items-center gap-2" ref={filtersRef}>
+          <div className="explore-search-surface material-glass">
+            <div className="explore-search-intro">
+              <h1 className="type-page-title">Explore stabilized buildings</h1>
+              <p className="type-body text-secondary mt-1.5 max-w-2xl">Search New York City public records by address, place, or management name.</p>
+            </div>
+            <div className="explore-search w-full">
+              <SearchBar value={searchQuery} onChange={setSearchQuery} placeholder="Search address, borough, ZIP, or management" size="lg" />
+            </div>
+            <div className="explore-filter-row" ref={filtersRef}>
             <FilterChip
               label="Borough"
               options={Object.entries(boroughLabels).map(([value, label]) => ({ value, label }))}
               selectedValues={boroughs}
               onChange={setBoroughs}
+              isOpen={openFilter === 'borough'}
+              onOpenChange={(open) => setOpenFilter(open ? 'borough' : null)}
             />
             <FilterChip
               label="Building health"
               options={Object.entries(healthLabels).map(([value, label]) => ({ value, label }))}
               selectedValues={healthStates}
               onChange={setHealthStates}
+              isOpen={openFilter === 'health'}
+              onOpenChange={(open) => setOpenFilter(open ? 'health' : null)}
             />
             <div className="relative">
               <button
@@ -221,7 +227,7 @@ export const ExplorePage: React.FC<ExplorePageProps> = ({
                 data-active={additionalFilterCount > 0 ? 'true' : 'false'}
                 aria-expanded={moreFiltersOpen}
                 aria-controls="explore-more-filters"
-                onClick={() => setMoreFiltersOpen((open) => !open)}
+                onClick={() => setOpenFilter(moreFiltersOpen ? null : 'more')}
               >
                 <SlidersHorizontal className="h-3.5 w-3.5" aria-hidden="true" />
                 More filters{additionalFilterCount > 0 ? ` · ${additionalFilterCount}` : ''}
@@ -230,7 +236,7 @@ export const ExplorePage: React.FC<ExplorePageProps> = ({
 
               {moreFiltersOpen && (
                 <>
-                  <button className="explore-filter-scrim st-scrim" type="button" aria-label="Close filters" onClick={() => setMoreFiltersOpen(false)} />
+                  <button className="explore-filter-scrim st-scrim" type="button" aria-label="Close filters" onClick={() => setOpenFilter(null)} />
                   <section id="explore-more-filters" className="explore-filter-panel material-sheet" role="dialog" aria-labelledby="explore-filter-title">
                     <div className="explore-filter-handle" aria-hidden="true" />
                     <header className="flex items-start justify-between gap-4">
@@ -238,7 +244,7 @@ export const ExplorePage: React.FC<ExplorePageProps> = ({
                         <h2 id="explore-filter-title" className="type-section-title">More filters</h2>
                         <p className="type-metadata mt-1">Refine the same public-record results.</p>
                       </div>
-                      <button ref={closeFiltersButtonRef} type="button" className="st-button st-button--ghost !min-h-11 !w-11 !p-0" onClick={() => setMoreFiltersOpen(false)} aria-label="Close filters">
+                      <button ref={closeFiltersButtonRef} type="button" className="st-button st-button--ghost !min-h-11 !w-11 !p-0" onClick={() => setOpenFilter(null)} aria-label="Close filters">
                         <X className="h-4 w-4" />
                       </button>
                     </header>
@@ -251,25 +257,26 @@ export const ExplorePage: React.FC<ExplorePageProps> = ({
 
                     <footer className="separator mt-6 flex items-center gap-3 border-t pt-4">
                       <button type="button" onClick={reset} className="st-button st-button--ghost flex-1"><RotateCcw className="h-3.5 w-3.5" />Reset</button>
-                      <button type="button" onClick={() => setMoreFiltersOpen(false)} className="st-button st-button--primary flex-[1.4]"><Check className="h-4 w-4" />Done</button>
+                      <button type="button" onClick={() => setOpenFilter(null)} className="st-button st-button--primary flex-[1.4]"><Check className="h-4 w-4" />Done</button>
                     </footer>
                   </section>
                 </>
               )}
             </div>
-            {hasFilters && <button onClick={reset} className="st-button st-button--ghost st-button--sm"><RotateCcw className="h-3.5 w-3.5" />Clear</button>}
+              {hasFilters && <button onClick={reset} className="st-button st-button--ghost st-button--sm"><RotateCcw className="h-3.5 w-3.5" />Clear</button>}
+            </div>
           </div>
         </div>
       </section>
 
-      <main className="max-w-[1240px] mx-auto w-full px-4 sm:px-6 md:px-8 pb-8 pt-6">
+      <main className="explore-workspace max-w-[1240px] mx-auto w-full px-4 sm:px-6 md:px-8 pb-8 pt-6">
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4"><SearchResultSkeleton /><SearchResultSkeleton /><SearchResultSkeleton /><SearchResultSkeleton /></div>
         ) : error ? (
           <PublicRecordErrorState description="The generated Stabili index could not be loaded." onRetry={load} />
         ) : (
           <>
-            <div className="flex flex-wrap items-end justify-between gap-3 mb-4">
+            <div className="explore-results-toolbar">
               <div>
                 <h2 className="type-section-title">{filtered.length.toLocaleString()} buildings</h2>
                 {filtered.length > DISPLAY_LIMIT && <p className="type-metadata">Showing the first {DISPLAY_LIMIT}; narrow the filters to refine results.</p>}

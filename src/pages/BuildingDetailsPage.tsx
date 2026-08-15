@@ -109,6 +109,11 @@ export const BuildingDetailsPage: React.FC<BuildingDetailsPageProps> = ({
             <p className="building-record-status"><ShieldCheck aria-hidden="true" /> Listed in a DHCR stabilized-building record</p>
             <h1 className="building-hero__title">{building.address}</h1>
             <p className="building-hero__location"><MapPin aria-hidden="true" /> {locationLabel}</p>
+            {(record.classifications.length > 0 || present(record.building?.buildingClass)) && (
+              <p className="building-classifications">
+                {[record.building?.buildingClass, ...record.classifications].filter(present).join(' · ')}
+              </p>
+            )}
             {record.propertyMatch.status === 'ambiguous' && (
               <p className="building-match-note"><AlertTriangle aria-hidden="true" /> Property details are a possible match and may require review.</p>
             )}
@@ -141,11 +146,6 @@ export const BuildingDetailsPage: React.FC<BuildingDetailsPageProps> = ({
             <Fact label="Ownership" value={record.building?.ownershipType ?? 'Unavailable'} />
           </dl>
 
-          {(record.classifications.length > 0 || present(record.building?.buildingClass)) && (
-            <p className="building-classifications">
-              {[record.building?.buildingClass, ...record.classifications].filter(present).join(' · ')}
-            </p>
-          )}
         </header>
 
         <section className="building-health-section" aria-labelledby="building-health-title">
@@ -155,6 +155,11 @@ export const BuildingDetailsPage: React.FC<BuildingDetailsPageProps> = ({
           </div>
           <BuildingHealthStatus health={building.health} variant="inline" className="building-health-section__status" />
           {record.health.explanation && <p className="building-health-section__explanation">{record.health.explanation}</p>}
+          <dl className="building-health-metrics" aria-label="Selected building health metrics">
+            <Fact label="Open violations" value={countLabel(record.violations.openCount)} />
+            <Fact label="Complaints on record" value={countLabel(record.complaints.totalCount)} />
+            <Fact label="Active vacate orders" value={countLabel(record.vacateOrders.activeCount)} />
+          </dl>
         </section>
 
         <section id="building-management" className="building-section building-management" aria-labelledby="management-title">
