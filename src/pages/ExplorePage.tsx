@@ -198,7 +198,7 @@ export const ExplorePage: React.FC<ExplorePageProps> = ({
             <p className="type-body text-secondary mt-1.5 max-w-2xl">Search New York City public records by address, place, or management name.</p>
           </div>
           <div className="explore-search mt-4 w-full max-w-4xl">
-            <SearchBar value={searchQuery} onChange={setSearchQuery} placeholder="Search an address, borough, ZIP, or management name" size="lg" />
+            <SearchBar value={searchQuery} onChange={setSearchQuery} placeholder="Search address, borough, ZIP, or management" size="lg" />
           </div>
           <div className="mt-3 flex flex-wrap items-center gap-2" ref={filtersRef}>
             <FilterChip

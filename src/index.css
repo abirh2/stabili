@@ -164,12 +164,15 @@
 .material-sheet { box-shadow: var(--st-shadow-floating); }
 .material-glass { box-shadow: 0 1px 0 rgb(255 255 255 / 70%), var(--st-shadow-raised); }
 .navigation-shell {
-  background: rgb(245 245 242 / 92%);
+  background: rgb(245 245 242 / 84%);
+  box-shadow: 0 1px 0 rgb(27 29 28 / 7%);
+  -webkit-backdrop-filter: blur(18px) saturate(125%);
+  backdrop-filter: blur(18px) saturate(125%);
   transition: background-color var(--st-duration-fast), box-shadow var(--st-duration-fast), backdrop-filter var(--st-duration-fast);
 }
 .navigation-shell[data-scrolled="true"] {
-  background: var(--st-surface-glass);
-  box-shadow: 0 1px 0 var(--st-separator);
+  background: rgb(250 250 248 / 88%);
+  box-shadow: 0 1px 0 var(--st-separator), 0 8px 24px rgb(24 28 25 / 4%);
   -webkit-backdrop-filter: blur(22px) saturate(135%);
   backdrop-filter: blur(22px) saturate(135%);
 }
@@ -251,7 +254,7 @@
 .st-option:hover { background: rgb(27 29 28 / 6%); color: var(--st-text-primary); }
 .st-option:active { transform: scale(0.99); }
 .st-option[aria-selected="true"], .st-option[aria-checked="true"] { background: var(--st-accent-subtle); color: var(--st-accent); font-weight: 600; }
-.st-checkbox { width: 1.125rem; height: 1.125rem; display: inline-flex; flex: 0 0 auto; align-items: center; justify-content: center; border: 1px solid var(--st-separator-strong); border-radius: 0.3rem; background: var(--st-surface-elevated); color: white; }
+.st-checkbox { width: 1.125rem; height: 1.125rem; display: inline-flex; flex: 0 0 auto; align-items: center; justify-content: center; border: 1px solid var(--st-separator-strong); border-radius: var(--st-radius-small); background: var(--st-surface-elevated); color: white; }
 .st-option[aria-checked="true"] .st-checkbox { border-color: var(--st-accent); background: var(--st-accent); }
 
 .st-scrim { background: var(--st-scrim); animation: st-fade-in var(--st-duration-fast) ease-out; }
@@ -273,7 +276,7 @@
 .stabili-map-spinner { width: 1rem; height: 1rem; border: 2px solid var(--st-separator-strong); border-top-color: var(--st-accent); border-radius: 50%; animation: st-map-spin 700ms linear infinite; }
 .stabili-map-state { max-width: 22rem; padding: 1rem; text-align: center; }
 .stabili-map-state__icon { width: 2.5rem; height: 2.5rem; display: inline-flex; align-items: center; justify-content: center; border-radius: var(--st-radius-control); background: var(--st-surface-elevated); color: var(--st-text-tertiary); box-shadow: var(--st-shadow-raised); }
-.stabili-map-state h3 { margin-top: 0.75rem; font-size: 0.875rem; line-height: 1.4; font-weight: 620; }
+.stabili-map-state h3 { margin-top: 0.75rem; font-size: 0.9375rem; line-height: 1.4; font-weight: 620; }
 .stabili-map-state p { margin-top: 0.25rem; color: var(--st-text-secondary); font-size: 0.75rem; line-height: 1.5; }
 .stabili-map-unavailable { align-items: center; justify-content: center; }
 .stabili-map-empty { position: absolute; z-index: 500; inset-inline: 1rem; top: 50%; padding: 1.25rem; border-radius: var(--st-radius-card); background: color-mix(in srgb, var(--st-surface-elevated) 95%, transparent); box-shadow: var(--st-shadow-raised); text-align: center; pointer-events: none; transform: translateY(-50%); }
@@ -377,6 +380,7 @@
 .saved-notice { width: min(100%, 52rem); margin-bottom: 1.5rem; padding: 0.85rem 0; border-block: 1px solid color-mix(in srgb, var(--st-caution) 24%, transparent); color: var(--st-caution); font-size: 0.8125rem; line-height: 1.5; }
 .saved-groups { display: grid; gap: 3rem; }
 .saved-group__heading { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; margin-bottom: 0.85rem; }
+.saved-empty-state { width: min(100%, 38rem); margin-top: clamp(2rem, 9vh, 6rem); padding: clamp(2.5rem, 6vw, 4rem); border: 1px solid var(--st-separator); border-radius: var(--st-radius-card); background: color-mix(in srgb, var(--st-surface-elevated) 78%, transparent); box-shadow: var(--st-shadow-raised); }
 
 /* About reads as a public-interest explainer, not a marketing card stack. */
 .editorial-page { width: min(100%, 70rem); margin-inline: auto; padding: 7rem 1rem 0; }
@@ -384,6 +388,10 @@
 .editorial-intro > p { max-width: 62ch; margin-top: 1rem; color: var(--st-text-secondary); font-size: 1rem; line-height: 1.65; letter-spacing: -0.008em; }
 .editorial-body { width: min(100%, 48rem); }
 .editorial-body > section { padding: 2.75rem 0; border-top: 1px solid var(--st-separator-strong); }
+.editorial-interpretation { display: grid; grid-template-columns: 1fr 1fr; overflow: hidden; margin: 2.75rem 0; border: 1px solid var(--st-separator); border-radius: var(--st-radius-card); background: var(--st-surface-elevated); box-shadow: var(--st-shadow-raised); }
+.editorial-interpretation > section { padding: 1.75rem; }
+.editorial-interpretation > section:first-child { background: color-mix(in srgb, var(--st-accent-subtle) 42%, var(--st-surface-elevated)); }
+.editorial-interpretation > section + section { border-left: 1px solid var(--st-separator); }
 .editorial-body h2 { font-size: 1.25rem; line-height: 1.25; letter-spacing: -0.022em; font-weight: 620; }
 .editorial-body section > p, .editorial-body li { max-width: 72ch; color: var(--st-text-secondary); font-size: 0.9375rem; line-height: 1.7; }
 .editorial-body section > p { margin-top: 0.9rem; }
@@ -527,12 +535,16 @@
   .record-list-heading { display: block; }
   .record-list-heading__search { width: 100%; margin-top: 1rem; }
   .saved-header { padding-top: 0.5rem; padding-bottom: 2rem; }
+  .saved-empty-state { margin-top: 1rem; padding: 2.5rem 1.25rem; }
   .saved-loading { grid-template-columns: 1fr; }
   .saved-groups { gap: 2.5rem; }
   .editorial-page { padding-top: 5.75rem; }
   .editorial-intro { padding: 0.75rem 0 2.75rem; }
   .editorial-intro > p { font-size: 1rem; line-height: 1.6; }
   .editorial-body > section { padding: 2.25rem 0; }
+  .editorial-interpretation { grid-template-columns: 1fr; margin: 2.25rem 0; }
+  .editorial-interpretation > section { padding: 1.35rem; }
+  .editorial-interpretation > section + section { border-top: 1px solid var(--st-separator); border-left: 0; }
   .editorial-action { display: block; }
   .editorial-action .st-button { width: 100%; margin-top: 1.25rem; }
   .building-hero { padding-top: 1.25rem; }

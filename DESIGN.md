@@ -8,7 +8,7 @@ colors:
   surface-glass: "rgb(250 250 248 / 82%)"
   graphite-primary: "#1b1d1c"
   graphite-secondary: "#5d625f"
-  graphite-tertiary: "#777d79"
+  graphite-tertiary: "#6b716d"
   separator-soft: "rgb(27 29 28 / 10%)"
   separator-strong: "rgb(27 29 28 / 17%)"
   stabili-teal: "#0b6b5c"
@@ -200,7 +200,7 @@ The palette pairs warm paper-like neutrals with graphite text, a restrained deep
 
 ### Named Rules
 
-**The Address Leads Rule.** In record summaries, the address or record name receives the title role; badges and metadata remain subordinate.
+**The Record Name Leads Rule.** In record summaries, the address or record name receives the title role; badges and metadata remain subordinate. On management profiles, the exact management name is the H1 and its public-record qualification follows beneath it rather than preceding it.
 
 **The Quiet Weight Rule.** Use spacing, scale, and contrast before adding bold weight; reserve the strongest weight for the Stabili wordmark.
 
@@ -260,20 +260,26 @@ Shared components are refined, restrained, and immediately responsive. Their def
 - **Shadow Strategy:** Raised and interactive variants follow the elevation vocabulary; glass is reserved for genuinely floating content.
 - **Border:** Cards generally avoid full outlines. Use separators within a record when facts need structure.
 - **Internal Padding:** Shared card padding progresses from 16px through 20–24px to 24–32px for spacious content.
+- **Page-level Empty State:** When the page's central user-owned collection is absent, one centered elevated surface may hold the explanation and next action. Filter and no-match states within an active research flow stay inline and flat.
 
 ### Inputs / Fields
 
 - **Style:** Elevated paper, a strong one-pixel separator, control corners, compact body type, and a subtle inset shadow.
 - **Focus:** The border becomes Stabili teal and gains a three-pixel focus ring; native outlines are replaced only by this clearly visible treatment.
 - **Error / Disabled:** Invalid fields use record red. Placeholder text stays tertiary; surrounding helper or error copy explains the state.
+- **Primary Search:** On Explore, search is the dominant raised control. Keep its prompt direct and compact enough to remain useful on narrow screens; omit filler words before the searchable fields.
 
 ### Navigation
 
-The fixed 64px navigation uses translucent paper and a single bottom separator. Desktop routes are compact ghost buttons with a quiet teal active state; search is represented as a secondary control. Mobile retains 44px circular icon actions and opens an opaque-or-translucent sheet using the same navigation hierarchy.
+The fixed 64px navigation uses translucent paper and a soft bottom separator even at the top of the page, so it remains a distinct floating material over every route. After a short scroll, or while the mobile menu is open, it becomes slightly more opaque, increases its blur, and adds a faint ambient shadow for stronger separation. Desktop routes are compact ghost buttons with a quiet teal active state; search is represented as a secondary control. Mobile retains 44px circular icon actions and opens an opaque-or-translucent sheet using the same navigation hierarchy.
+
+### Interpretation Surface
+
+Consequential explanatory pairs may become one purposeful raised surface rather than two unrelated cards. The established About treatment places Stabili's meaning in a pale-teal half and limitations in a neutral half, divided by one soft separator; it collapses to a vertical pair on compact screens. Use this pattern only when the contrast between interpretation and constraint materially improves comprehension.
 
 ### Building Result
 
-The building result is the signature shared record object: an interactive elevated card with the address as its visual anchor, public-record and complex context beneath it, a restrained three-column fact row, a plainly labeled Stabili interpretation, and management availability at the end. Hover may tint the address and lift the card by one pixel; selection uses a quiet teal wash and focus-colored ring. Save remains a single compact icon action, and status color is always paired with visible text.
+The building result is the signature shared record object: an interactive flat row with the address as its visual anchor, public-record and complex context beneath it, a restrained three-column fact row, a plainly labeled Stabili interpretation, and management availability at the end. Soft separators maintain list continuity; hover may tint the address and introduce a subtle tonal wash with an inset highlight without turning the row into a card. Selection uses a quiet teal wash and focus-colored inset ring. Save remains a single compact icon action, and status color is always paired with visible text.
 
 ## Do's and Don'ts
 

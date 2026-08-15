@@ -89,9 +89,9 @@ export const ManagementProfilePage: React.FC<ManagementProfilePageProps> = ({
       <div className="management-profile">
         <header className="management-profile__hero">
           <div className="management-profile__identity">
-            <p className="type-label">Management name on public records</p>
-            <h1 className="type-page-title mt-1">{managementName}</h1>
-            <p className="type-body text-secondary mt-3 max-w-2xl">This page groups records with the exact same management-name text. It does not establish that similarly named entities are the same legal organization.</p>
+            <h1 className="type-page-title">{managementName}</h1>
+            <p className="type-label mt-2">Management name on public records</p>
+            <p className="type-body text-secondary mt-2 max-w-2xl">This page groups records with the exact same management-name text. It does not establish that similarly named entities are the same legal organization.</p>
             <dl className="management-profile__summary" aria-label="Associated record summary">
               <div><dt>Associated records</dt><dd>{records.length.toLocaleString()}</dd></div>
               <div><dt>Boroughs represented</dt><dd>{boroughCount.toLocaleString()}</dd></div>

@@ -45,22 +45,24 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => (
           <p>Each Stabili page is a research starting point. Addresses, property identifiers, and management names can be incomplete or difficult to match, so ambiguity and unavailable fields remain visible.</p>
         </section>
 
-        <section aria-labelledby="what-the-data-means">
-          <h2 id="what-the-data-means">What the data means</h2>
-          <p>A building appearing in Stabili means it appears in the source rent-stabilized building file represented by the current generated dataset. Related city records are attached when the matching process finds a sufficiently clear connection.</p>
-          <p>The building-health summary is a Stabili interpretation of selected public condition records. It is not an agency grade, a legal finding, or a determination that a building or apartment is safe or unsafe.</p>
-        </section>
+        <div className="editorial-interpretation" aria-label="How to interpret Stabili records">
+          <section aria-labelledby="what-the-data-means">
+            <h2 id="what-the-data-means">What the data means</h2>
+            <p>A building appearing in Stabili means it appears in the source rent-stabilized building file represented by the current generated dataset. Related city records are attached when the matching process finds a sufficiently clear connection.</p>
+            <p>The building-health summary is a Stabili interpretation of selected public condition records. It is not an agency grade, a legal finding, or a determination that a building or apartment is safe or unsafe.</p>
+          </section>
 
-        <section aria-labelledby="limits">
-          <h2 id="limits">What Stabili does not guarantee</h2>
-          <ul>
-            <li>That a particular apartment is rent-stabilized.</li>
-            <li>That an apartment is available to rent.</li>
-            <li>That management or contact information is current or complete.</li>
-            <li>That every agency record matched to a building is free from source or matching errors.</li>
-          </ul>
-          <p>For an apartment’s official rent history or a legal determination, contact NYS Homes and Community Renewal or seek qualified tenant guidance.</p>
-        </section>
+          <section aria-labelledby="limits">
+            <h2 id="limits">What Stabili does not guarantee</h2>
+            <ul>
+              <li>That a particular apartment is rent-stabilized.</li>
+              <li>That an apartment is available to rent.</li>
+              <li>That management or contact information is current or complete.</li>
+              <li>That every agency record matched to a building is free from source or matching errors.</li>
+            </ul>
+            <p>For an apartment’s official rent history or a legal determination, contact NYS Homes and Community Renewal or seek qualified tenant guidance.</p>
+          </section>
+        </div>
 
         <section aria-labelledby="source-transparency">
           <h2 id="source-transparency">Source transparency</h2>

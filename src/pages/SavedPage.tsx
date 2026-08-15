@@ -43,6 +43,6 @@ export const SavedPage: React.FC<SavedPageProps> = ({ savedBuildingIds, onToggle
           <div className="explore-result-list border-t">{boroughBuildings.map((building) => <BuildingCard key={building.id} building={building} isSaved onSelect={onSelectBuilding} onToggleSave={onToggleSaveBuilding} />)}</div>
         </section>;
       })}</div>
-    </> : <EmptyState icon={<Bookmark className="w-6 h-6" />} title="No saved buildings yet" description={missingCount ? "Your previously saved IDs are not present in the current dataset." : "Save a building record while exploring Stabili and it will appear here on this browser."} actionLabel="Explore buildings" onAction={() => onNavigate('explore')} />}
+    </> : <EmptyState className="saved-empty-state" icon={<Bookmark className="w-6 h-6" />} title="No saved buildings yet" description={missingCount ? "Your previously saved IDs are not present in the current dataset." : "Save a building record while exploring Stabili and it will appear here on this browser."} actionLabel="Explore buildings" onAction={() => onNavigate('explore')} />}
   </PageContainer>;
 };
