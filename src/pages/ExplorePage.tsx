@@ -1,10 +1,11 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Building2, Check, ChevronDown, List, Map as MapIcon, RotateCcw, SlidersHorizontal, X } from 'lucide-react';
+import { Building2, Check, ChevronDown, List, Map as MapIcon, RotateCcw, Search, SlidersHorizontal, X } from 'lucide-react';
 import { EmptyState, FilterChip, PublicRecordErrorState, SearchBar, SearchResultSkeleton } from '../components/common';
 import { BuildingCard } from '../components/explore/BuildingCard';
 import { ExploreMap } from '../components/explore/ExploreMap';
 import { indexToBuilding } from '../data/adapters';
 import { loadBuildingIndex } from '../data/client';
+import { filterOptionsByQuery, managementAvailability, matchesCategoricalValue } from '../exploreFilters';
 import type { StabiliIndexRecord } from '../data/schema';
 import type { Route } from '../types';
 
@@ -20,9 +21,66 @@ const boroughLabels: Record<StabiliIndexRecord['borough'], string> = {
   bronx: 'Bronx', brooklyn: 'Brooklyn', manhattan: 'Manhattan', queens: 'Queens', staten_island: 'Staten Island',
 };
 const healthLabels: Record<StabiliIndexRecord['healthState'], string> = {
-  low_concern: 'Low concern', some_concerns: 'Some concerns', higher_concern: 'Higher concern', insufficient_data: 'Not enough data',
+  low_concern: 'Low concern', some_concerns: 'Some concerns', higher_concern: 'Higher concern', insufficient_data: 'Insufficient data',
 };
 const DISPLAY_LIMIT = 100;
+
+interface CheckboxFilterGroupProps {
+  label: string;
+  options: { label: string; value: string }[];
+  selectedValues: string[];
+  onChange: (values: string[]) => void;
+  searchable?: boolean;
+}
+
+const CheckboxFilterGroup: React.FC<CheckboxFilterGroupProps> = ({ label, options, selectedValues, onChange, searchable = false }) => {
+  const [query, setQuery] = useState('');
+  const visibleOptions = filterOptionsByQuery(options, query);
+
+  return (
+    <fieldset className="explore-filter-group">
+      <legend>{label}</legend>
+      {searchable && (
+        <label className="explore-filter-search">
+          <span className="sr-only">Search {label.toLocaleLowerCase()}s</span>
+          <Search className="h-3.5 w-3.5" aria-hidden="true" />
+          <input
+            type="search"
+            inputMode="numeric"
+            autoComplete="off"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder={`Search ${label.toLocaleLowerCase()}s`}
+            className="st-input"
+          />
+        </label>
+      )}
+      <div className="explore-filter-group__options stabili-scroller">
+        {visibleOptions.map((option) => {
+          const selected = selectedValues.includes(option.value);
+          return (
+            <button
+              key={option.value}
+              type="button"
+              role="checkbox"
+              aria-checked={selected}
+              className="st-option"
+              onClick={() => onChange(selected
+                ? selectedValues.filter((value) => value !== option.value)
+                : [...selectedValues, option.value])}
+            >
+              <span>{option.label}</span>
+              <span className="st-checkbox" aria-hidden="true">{selected && <Check className="h-3.5 w-3.5" />}</span>
+            </button>
+          );
+        })}
+        {visibleOptions.length === 0 && (
+          <p className="explore-filter-no-results" role="status">No {label.toLocaleLowerCase()}s match “{query.trim()}”.</p>
+        )}
+      </div>
+    </fieldset>
+  );
+};
 
 export const ExplorePage: React.FC<ExplorePageProps> = ({
   onSelectBuilding,
@@ -33,11 +91,11 @@ export const ExplorePage: React.FC<ExplorePageProps> = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [borough, setBorough] = useState('All');
-  const [zip, setZip] = useState('All');
-  const [health, setHealth] = useState('All');
-  const [management, setManagement] = useState('All');
-  const [matchStatus, setMatchStatus] = useState('All');
+  const [boroughs, setBoroughs] = useState<string[]>([]);
+  const [zipsSelected, setZipsSelected] = useState<string[]>([]);
+  const [healthStates, setHealthStates] = useState<string[]>([]);
+  const [managementStates, setManagementStates] = useState<string[]>([]);
+  const [matchStatuses, setMatchStatuses] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState<'default' | 'units-desc' | 'year-desc' | 'violations-asc'>('default');
   const [desktopLayout, setDesktopLayout] = useState<'split' | 'list'>('split');
   const [mobileView, setMobileView] = useState<'list' | 'map'>('list');
@@ -96,8 +154,8 @@ export const ExplorePage: React.FC<ExplorePageProps> = ({
   }, [moreFiltersOpen]);
 
   const zips = useMemo(() => Array.from(new Set(records.map((record) => record.zipCode).filter((value): value is string => Boolean(value)))).sort(), [records]);
-  const hasFilters = Boolean(searchQuery.trim() || borough !== 'All' || zip !== 'All' || health !== 'All' || management !== 'All' || matchStatus !== 'All');
-  const additionalFilterCount = [zip, management, matchStatus].filter((value) => value !== 'All').length;
+  const hasFilters = Boolean(searchQuery.trim() || boroughs.length || zipsSelected.length || healthStates.length || managementStates.length || matchStatuses.length);
+  const additionalFilterCount = zipsSelected.length + managementStates.length + matchStatuses.length;
 
   const filtered = useMemo(() => {
     const query = searchQuery.trim().toLocaleLowerCase();
@@ -109,12 +167,11 @@ export const ExplorePage: React.FC<ExplorePageProps> = ({
         record.managementName,
         record.ownerName,
       ].some((value) => value?.toLocaleLowerCase().includes(query))) return false;
-      if (borough !== 'All' && boroughLabels[record.borough] !== borough) return false;
-      if (zip !== 'All' && record.zipCode !== zip) return false;
-      if (health !== 'All' && healthLabels[record.healthState] !== health) return false;
-      if (management === 'Name available' && !record.managementName) return false;
-      if (management === 'Name unavailable' && record.managementName) return false;
-      if (matchStatus !== 'All' && record.propertyMatchStatus !== matchStatus) return false;
+      if (!matchesCategoricalValue(record.borough, boroughs)) return false;
+      if (!matchesCategoricalValue(record.zipCode, zipsSelected)) return false;
+      if (!matchesCategoricalValue(record.healthState, healthStates)) return false;
+      if (!matchesCategoricalValue(managementAvailability(Boolean(record.managementName)), managementStates)) return false;
+      if (!matchesCategoricalValue(record.propertyMatchStatus, matchStatuses)) return false;
       return true;
     });
     result.sort((a, b) => {
@@ -124,12 +181,12 @@ export const ExplorePage: React.FC<ExplorePageProps> = ({
       return 0;
     });
     return result;
-  }, [records, searchQuery, borough, zip, health, management, matchStatus, sortBy]);
+  }, [records, searchQuery, boroughs, zipsSelected, healthStates, managementStates, matchStatuses, sortBy]);
 
   const visibleBuildings = useMemo(() => filtered.slice(0, DISPLAY_LIMIT).map(indexToBuilding), [filtered]);
 
   const reset = () => {
-    setSearchQuery(''); setBorough('All'); setZip('All'); setHealth('All'); setManagement('All'); setMatchStatus('All');
+    setSearchQuery(''); setBoroughs([]); setZipsSelected([]); setHealthStates([]); setManagementStates([]); setMatchStatuses([]);
   };
 
   return (
@@ -144,8 +201,18 @@ export const ExplorePage: React.FC<ExplorePageProps> = ({
             <SearchBar value={searchQuery} onChange={setSearchQuery} placeholder="Search an address, borough, ZIP, or management name" size="lg" />
           </div>
           <div className="mt-3 flex flex-wrap items-center gap-2" ref={filtersRef}>
-            <FilterChip label="Borough" options={['All', 'Manhattan', 'Brooklyn', 'Queens', 'Bronx', 'Staten Island']} selectedValue={borough} onSelect={setBorough} />
-            <FilterChip label="Building health" options={['All', 'Low concern', 'Some concerns', 'Higher concern', 'Not enough data']} selectedValue={health} onSelect={setHealth} />
+            <FilterChip
+              label="Borough"
+              options={Object.entries(boroughLabels).map(([value, label]) => ({ value, label }))}
+              selectedValues={boroughs}
+              onChange={setBoroughs}
+            />
+            <FilterChip
+              label="Building health"
+              options={Object.entries(healthLabels).map(([value, label]) => ({ value, label }))}
+              selectedValues={healthStates}
+              onChange={setHealthStates}
+            />
             <div className="relative">
               <button
                 ref={moreFiltersButtonRef}
@@ -176,30 +243,15 @@ export const ExplorePage: React.FC<ExplorePageProps> = ({
                       </button>
                     </header>
 
-                    <div className="mt-5 grid gap-4">
-                      <label className="explore-filter-field">
-                        <span>ZIP code</span>
-                        <select value={zip} onChange={(event) => setZip(event.target.value)} className="st-input px-3">
-                          <option>All</option>{zips.map((value) => <option key={value}>{value}</option>)}
-                        </select>
-                      </label>
-                      <label className="explore-filter-field">
-                        <span>Management availability</span>
-                        <select value={management} onChange={(event) => setManagement(event.target.value)} className="st-input px-3">
-                          <option>All</option><option>Name available</option><option>Name unavailable</option>
-                        </select>
-                      </label>
-                      <label className="explore-filter-field">
-                        <span>Property record match</span>
-                        <select value={matchStatus} onChange={(event) => setMatchStatus(event.target.value)} className="st-input px-3">
-                          <option value="All">All records</option><option value="matched">Matched</option><option value="ambiguous">Ambiguous</option>
-                        </select>
-                      </label>
+                    <div className="mt-5 grid gap-5">
+                      <CheckboxFilterGroup label="ZIP code" options={zips.map((value) => ({ value, label: value }))} selectedValues={zipsSelected} onChange={setZipsSelected} searchable />
+                      <CheckboxFilterGroup label="Management availability" options={[{ value: 'available', label: 'Name available' }, { value: 'unavailable', label: 'Name unavailable' }]} selectedValues={managementStates} onChange={setManagementStates} />
+                      <CheckboxFilterGroup label="Property record match" options={[{ value: 'matched', label: 'Matched' }, { value: 'ambiguous', label: 'Ambiguous' }]} selectedValues={matchStatuses} onChange={setMatchStatuses} />
                     </div>
 
                     <footer className="separator mt-6 flex items-center gap-3 border-t pt-4">
                       <button type="button" onClick={reset} className="st-button st-button--ghost flex-1"><RotateCcw className="h-3.5 w-3.5" />Reset</button>
-                      <button type="button" onClick={() => setMoreFiltersOpen(false)} className="st-button st-button--primary flex-[1.4]"><Check className="h-4 w-4" />Apply filters</button>
+                      <button type="button" onClick={() => setMoreFiltersOpen(false)} className="st-button st-button--primary flex-[1.4]"><Check className="h-4 w-4" />Done</button>
                     </footer>
                   </section>
                 </>

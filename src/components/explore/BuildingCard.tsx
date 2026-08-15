@@ -52,7 +52,7 @@ export const BuildingCard: React.FC<BuildingCardProps> = ({
       ? 'Some concerns'
       : building.health === 'Needs Attention'
         ? 'Higher concern'
-        : 'Not enough data';
+        : 'Insufficient data';
   const healthTone = building.health === 'Good' ? 'positive' : building.health === 'Fair' ? 'caution' : building.health === 'Needs Attention' ? 'negative' : 'neutral';
   const recentCondition = building.openViolationsCount == null
     ? 'Recent violation data unavailable'
@@ -70,15 +70,21 @@ export const BuildingCard: React.FC<BuildingCardProps> = ({
       }}
       className="building-result group relative"
     >
+      <button
+        type="button"
+        className="building-result__link"
+        onClick={() => onSelect(building.id)}
+        onKeyDown={(event) => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            onSelect(building.id);
+          }
+        }}
+        aria-label={`View building details for ${building.address}`}
+      />
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
-          <button
-            type="button"
-            onClick={() => onSelect(building.id)}
-            className="building-result__address block cursor-pointer text-left text-primary transition-colors group-hover:text-accent"
-          >
-            {building.address}
-          </button>
+          <h3 className="building-result__address text-primary">{building.address}</h3>
           <p className="type-metadata mt-0.5">
             {locationText}{building.zipCode ? ` · ${building.zipCode}` : ''}
           </p>
@@ -93,8 +99,11 @@ export const BuildingCard: React.FC<BuildingCardProps> = ({
         <button
           id={`save-btn-${building.id}`}
           type="button"
-          onClick={() => onToggleSave(building.id)}
-          className={`st-button st-button--pill !min-h-11 !w-11 !p-0 ${isSaved ? 'st-button--subtle-teal' : 'st-button--ghost'}`}
+          onClick={(event) => {
+            event.stopPropagation();
+            onToggleSave(building.id);
+          }}
+          className={`building-result__action st-button st-button--pill !min-h-11 !w-11 !p-0 ${isSaved ? 'st-button--subtle-teal' : 'st-button--ghost'}`}
           aria-pressed={isSaved}
           aria-label={isSaved ? 'Remove building from saved' : 'Save building'}
         >

@@ -1,15 +1,14 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import type { LatLngExpression } from 'leaflet';
 import { ArrowRight, MapPin, ShieldCheck } from 'lucide-react';
-import { MapContainer, Marker, Popup, TileLayer, useMap } from 'react-leaflet';
+import { Marker, Popup, useMap } from 'react-leaflet';
 import type { BuildingRecord } from '../../types';
 import {
   buildingMarkerIcon,
-  EXPLORE_TILE_ATTRIBUTION,
-  EXPLORE_TILE_URL,
   hasValidCoordinates,
   type MappableBuilding,
 } from '../maps/leaflet';
+import { StabiliMap } from '../maps/StabiliMap';
 
 interface ExploreMapProps {
   buildings: BuildingRecord[];
@@ -111,16 +110,20 @@ export const ExploreMap: React.FC<ExploreMapProps> = React.memo(({
   }, [mappableBuildings, selectedBuildingId]);
 
   return (
-    <div className="stabili-leaflet-frame relative flex h-full min-h-[460px] w-full flex-col bg-slate-100">
-      <header className="separator flex min-h-14 items-center justify-between gap-3 border-b bg-[var(--st-surface-elevated)] px-4">
+    <StabiliMap
+      center={NYC_CENTER}
+      zoom={10}
+      scrollWheelZoom
+      ariaLabel="Map of filtered Stabili building records"
+      className="h-full min-h-[460px] w-full"
+      header={<header className="stabili-map-header separator flex min-h-14 items-center justify-between gap-3 border-b px-4">
         <div className="flex min-w-0 items-center gap-2">
           <MapPin className="h-4 w-4 shrink-0 text-accent" aria-hidden="true" />
           <span className="type-label truncate text-primary">Map results</span>
         </div>
         <span className="type-metadata shrink-0 tabular-nums">{mappableBuildings.length.toLocaleString()} mapped</span>
-      </header>
-      <MapContainer center={NYC_CENTER} zoom={10} scrollWheelZoom className="min-h-0 w-full flex-1" aria-label="Map of filtered Stabili building records">
-        <TileLayer attribution={EXPLORE_TILE_ATTRIBUTION} url={EXPLORE_TILE_URL} maxZoom={20} />
+      </header>}
+    >
         <MapViewport positions={positions} />
         {mappableBuildings.map((building) => (
           <BuildingMarker
@@ -132,15 +135,14 @@ export const ExploreMap: React.FC<ExploreMapProps> = React.memo(({
             onHover={onHoverBuilding}
           />
         ))}
-      </MapContainer>
 
       {mappableBuildings.length === 0 && (
-        <div className="pointer-events-none absolute inset-x-4 top-1/2 z-[500] -translate-y-1/2 rounded-2xl bg-white/95 p-5 text-center shadow-sm ring-1 ring-slate-200/80">
+        <div className="stabili-map-empty">
           <h3 className="text-sm font-semibold text-slate-900">No mapped buildings in these results</h3>
           <p className="mt-1 text-xs text-slate-500">Records without valid coordinates remain available in the list.</p>
         </div>
       )}
-    </div>
+    </StabiliMap>
   );
 });
 
